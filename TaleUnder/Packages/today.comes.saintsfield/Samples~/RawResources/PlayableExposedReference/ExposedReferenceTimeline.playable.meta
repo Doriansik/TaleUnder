@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 6b1a14bdec4a8b041aba128c201d3c58
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269741
+  packageName: Saints Field
+  packageVersion: 5.25.5
+  assetPath: Packages/today.comes.saintsfield/Samples~/RawResources/PlayableExposedReference/ExposedReferenceTimeline.playable
+  uploadId: 964304

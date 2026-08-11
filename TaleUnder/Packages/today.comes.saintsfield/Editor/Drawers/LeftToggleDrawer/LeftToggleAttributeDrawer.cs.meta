@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 25d26053752c41a19aeaa544b059e201
+timeCreated: 1702630180
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269741
+  packageName: Saints Field
+  packageVersion: 5.25.5
+  assetPath: Packages/today.comes.saintsfield/Editor/Drawers/LeftToggleDrawer/LeftToggleAttributeDrawer.cs
+  uploadId: 964304

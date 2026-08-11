@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: a218e2de72a24183b4b372650d237cb7
+timeCreated: 1784791074
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269741
+  packageName: Saints Field
+  packageVersion: 5.25.5
+  assetPath: Packages/today.comes.saintsfield/Editor/Playa/NetCode/ApplyNetworkBehaviourEditor.cs
+  uploadId: 964304

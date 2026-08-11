@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 74d22fbd66effda4694e2ad7efd30ab6
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269741
+  packageName: Saints Field
+  packageVersion: 5.25.5
+  assetPath: Packages/today.comes.saintsfield/Editor/Drawers/PropRangeDrawer/PropRangeElementFloat.cs
+  uploadId: 964304

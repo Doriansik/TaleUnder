@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 39ec5cd4796d4c0f985f83b4037ca4af
+timeCreated: 1784791189
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269741
+  packageName: Saints Field
+  packageVersion: 5.25.5
+  assetPath: Packages/today.comes.saintsfield/Editor/Playa/NetCode/SaintsMenuNetworkBehavior.cs
+  uploadId: 964304

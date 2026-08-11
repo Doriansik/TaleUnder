@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 1e19cdf28026428ab9c33d5eba1a21c0
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269741
+  packageName: Saints Field
+  packageVersion: 4.32.7
+  assetPath: Assets/SaintsField/Editor/Drawers/TreeDropdownDrawer/SaintsTreeDropdownIMGUI.cs
+AssetOrigin:
+  serializedVersion: 1
+  productId: 269741
+  packageName: Saints Field
+  packageVersion: 5.25.5
+  assetPath: Packages/today.comes.saintsfield/Editor/Drawers/DropdownDrawer/SaintsTreeDropdownIMGUI.cs
+  uploadId: 964304
