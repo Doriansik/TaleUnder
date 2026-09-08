@@ -8,5 +8,14 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/1_ASSETS/Scenes/SampleScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/1_ASSETS/Scenes/School/KRET_TESTY.unity
+    guid: 01533452accc58144a98c9325c1894bc
+  - enabled: 1
+    path: Assets/1_ASSETS/Scenes/School/Sch_Hallway.unity
+    guid: c24c780b8654a444e813c095327c76f3
+  - enabled: 1
+    path: Assets/1_ASSETS/Scenes/School/Sch_Math.unity
+    guid: d6d2378bbad471143988211bf9e10700
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}

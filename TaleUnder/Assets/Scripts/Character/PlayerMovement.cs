@@ -10,6 +10,11 @@ public class PlayerMovement : MonoBehaviour
     [Range(1f, 20f)]
     public float moveSpeed = 5f;
 
+    void Awake()
+    {
+        
+    }
+
     void Update()
     {
         float moveX = Input.GetAxisRaw("Horizontal");
