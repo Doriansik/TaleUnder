@@ -1,0 +1,1 @@
+public enum ComparisonType { Equal, GreaterOrEqual, LessOrEqual }

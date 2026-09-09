@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5263b8b0608faa443aa148a2edd3f123, type: 3}
+  m_Name: Dialogue_MORFINA
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSequenceSO
+  lines:
+  - character: {fileID: 11400000, guid: 9982f3306c201604e9ff7aec7646b9cc, type: 2}
+    emotion: 0
+    text: "NIE NO NIEZLA MAM T\u0104 NAZWE NIESAMOWIT XDXDXDXDX XDXDXDX X DXDX"
+    onLineStart:
+      m_PersistentCalls:
+        m_Calls: []
+    flagToChange: {fileID: 0}
+    flagValue: 0
+  - character: {fileID: 11400000, guid: 9982f3306c201604e9ff7aec7646b9cc, type: 2}
+    emotion: 1
+    text: DIALOG 2
+    onLineStart:
+      m_PersistentCalls:
+        m_Calls: []
+    flagToChange: {fileID: 0}
+    flagValue: 0
+  playerCharacter: {fileID: 11400000, guid: 246a0081f70c5344dbe6837979f87859, type: 2}
+  choices:
+  - choiceText: ACHA
+    nextSequence: {fileID: 11400000, guid: 69d94a6229b4f0b4b8db65074a3710cb, type: 2}
+    flagToChange: {fileID: 0}
+    flagValue: 0
+  - choiceText: xdd
+    nextSequence: {fileID: 11400000, guid: f7612b2dd1c7ca14c99dcf36e990737e, type: 2}
+    flagToChange: {fileID: 11400000, guid: 6c2d9c9cf337d5d47a8ba3a24c2ba33d, type: 2}
+    flagValue: 2

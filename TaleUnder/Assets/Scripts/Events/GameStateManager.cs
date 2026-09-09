@@ -5,7 +5,7 @@ public class GameStateManager : MonoBehaviour
 {
     public static GameStateManager Instance;
 
-    private Dictionary<string, bool> gameFlags = new Dictionary<string, bool>();
+    private Dictionary<string, int> gameVariables = new Dictionary<string, int>();
 
     void Awake()
     {
@@ -13,13 +13,23 @@ public class GameStateManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    public void SetFlag(string flagName, bool state)
+    public void SetVariable(GameVariableSO variable, int value)
     {
-        gameFlags[flagName] = state;
+        if (variable == null) return;
+        gameVariables[variable.name] = value;
+        Debug.Log($"[GameState] Ustawiono zmienn¹: {variable.name} = {value}");
     }
 
-    public bool GetFlag(string flagName)
+    public void AddToVariable(GameVariableSO variable, int amount)
     {
-        return gameFlags.ContainsKey(flagName) && gameFlags[flagName];
+        if (variable == null) return;
+        int currentValue = GetVariable(variable);
+        SetVariable(variable, currentValue + amount);
+    }
+
+    public int GetVariable(GameVariableSO variable)
+    {
+        if (variable == null) return 0;
+        return gameVariables.ContainsKey(variable.name) ? gameVariables[variable.name] : 0;
     }
 }

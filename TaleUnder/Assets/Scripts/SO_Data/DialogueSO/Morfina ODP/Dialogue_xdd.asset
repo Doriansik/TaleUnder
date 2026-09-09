@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5263b8b0608faa443aa148a2edd3f123, type: 3}
+  m_Name: Dialogue_xdd
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueSequenceSO
+  lines:
+  - character: {fileID: 11400000, guid: 9982f3306c201604e9ff7aec7646b9cc, type: 2}
+    emotion: 0
+    text: 123123123123
+    onLineStart:
+      m_PersistentCalls:
+        m_Calls: []
+    flagToChange: {fileID: 0}
+    flagValue: 0
+  playerCharacter: {fileID: 11400000, guid: 246a0081f70c5344dbe6837979f87859, type: 2}
+  choices: []
