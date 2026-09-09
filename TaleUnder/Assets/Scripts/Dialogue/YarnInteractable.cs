@@ -1,18 +1,25 @@
 using UnityEngine;
 using SaintsField;
+using Yarn.Unity;
 
-public class DialogueTrigger : MonoBehaviour
+public class YarnInteractable : MonoBehaviour
 {
-    [Required] public DialogueSequenceSO dialogueToPlay;
+    [Required] public string startNode = "Start";
     private bool isPlayerInRange = false;
+    private DialogueRunner dialogueRunner;
+
+    void Start()
+    {
+        dialogueRunner = FindAnyObjectByType<DialogueRunner>();
+    }
 
     void Update()
     {
         if (isPlayerInRange && Input.GetKeyDown(KeyCode.Z))
         {
-            if (DialogueManager.Instance != null)
+            if (dialogueRunner != null && !dialogueRunner.IsDialogueRunning)
             {
-                DialogueManager.Instance.StartDialogue(dialogueToPlay);
+                dialogueRunner.StartDialogue(startNode);
             }
         }
     }

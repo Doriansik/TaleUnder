@@ -1,0 +1,14 @@
+﻿title: Start
+---
+<<show_avatar NPC Happy>>
+NPC: Wreszcie jesteś! Mamy problem z systemem flag.
+Player: Spokojnie, już wszystko podłączam.
+NPC: Jesteś pewien, że zadziała?
+-> Tak, to solidna architektura.
+    <<show_avatar NPC Neutral>>
+    NPC: Obyś miał rację.
+    <<set_var Quest_MainStory 1>>
+-> Nie mam pojęcia, klikam na oślep.
+    <<show_avatar NPC Surprised>>
+    NPC: To nie wróży nic dobrego...
+===
