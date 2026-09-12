@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8c95d773014e1540af90ed2db8b2a70, type: 3}
+  m_Name: Song_PERSONA
+  m_EditorClassIdentifier: Assembly-CSharp::SongDataSO
+  songID: PERSONA
+  track: {fileID: 8300000, guid: 4b333f10555a2ef4a9b97518a97a7da6, type: 3}
+  bpm: 103
+  firstBeatOffset: 0

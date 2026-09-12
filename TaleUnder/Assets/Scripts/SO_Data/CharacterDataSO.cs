@@ -11,5 +11,6 @@ public struct EmotionSprite
 public class CharacterDataSO : ScriptableObject
 {
     public string characterID;
+    public AudioClip typingSound;
     public EmotionSprite[] emotions;
 }
