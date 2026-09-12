@@ -3,7 +3,7 @@
 <<show_avatar NPC Morfina Happy>>
 Morfina: EOEOEOOEOEOEOEOOEOEOE
 
-<<show_avatar NPC MC Neutral>>
+<<show_avatar Player MC Neutral>>
 Gracz: ELO ZELOOO!
 
 <<show_avatar NPC Morfina Happy>>
@@ -17,7 +17,7 @@ Morfina: Przetestujmy to! Podejmij decyzję.
 -> Odrzuć misję (Smutna Morfina).
     <<show_avatar NPC Morfina Sad>>
     Morfina: ALE JAK TO
-    <<set_var Quest_MainStory 0>>
+    <<set_var Var_TEST 2>>
 
 <<hide_avatars>>
 Morfina: Do zobaczenia później!

@@ -66,11 +66,12 @@ public class DialogueUIBridge : MonoBehaviour
             if (areOptionsActive && !wereOptionsActive)
             {
                 ShowAvatar("player", "MC", "Neutral");
-                Tween.Alpha(dimBackground, 0.95f, 0.2f);
+                Tween.Alpha(dimBackground, 1f, 0.2f);
             }
             else if (!areOptionsActive && wereOptionsActive)
             {
-                Tween.Alpha(dimBackground, 0.8f, 0.2f);
+                Tween.Alpha(dimBackground, 0f, 0.2f);
+                playerAvatar.gameObject.SetActive(false);
             }
             
             wereOptionsActive = areOptionsActive;
@@ -201,7 +202,7 @@ public class DialogueUIBridge : MonoBehaviour
         if (InputManager.Instance != null) InputManager.Instance.isDialogueActive = true;
         
         dimBackground.gameObject.SetActive(true);
-        Tween.Alpha(dimBackground, 0.8f, 0.3f);
+        Tween.Alpha(dimBackground, 0f, 0.3f);
         Tween.Alpha(linePresenterGroup, 1f, 0.3f);
     }
 

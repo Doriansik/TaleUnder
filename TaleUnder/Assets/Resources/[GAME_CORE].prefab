@@ -150,6 +150,8 @@ RectTransform:
   - {fileID: 7917586315144289043}
   - {fileID: 8851020355425224490}
   - {fileID: 4365684716304151239}
+  - {fileID: 4199264576848366733}
+  - {fileID: 8838510654047749894}
   m_Father: {fileID: 4398580719859239288}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -450,11 +452,11 @@ RectTransform:
   m_LocalScale: {x: 0.7687219, y: 0.7687219, z: 0.7687219}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8851020355425224490}
+  m_Father: {fileID: 4023353993944530837}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 265, y: -1092}
+  m_AnchoredPosition: {x: 270.89996, y: -890}
   m_SizeDelta: {x: 1440, y: 2048}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1623161699886553232
@@ -739,7 +741,7 @@ MonoBehaviour:
   dialoguePresenters:
   - {fileID: 8851020355425224485}
   - {fileID: 4365684716304151233}
-  - {fileID: 420615140875012962}
+  - {fileID: 0}
   verboseLogging: 0
   autoStart: 0
   startNode: Start
@@ -1144,7 +1146,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 943, y: 479}
+  m_AnchoredPosition: {x: 804, y: 479}
   m_SizeDelta: {x: -400.00003, y: 0}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &4365684716304151257
@@ -1195,7 +1197,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4365684716304151236}
   m_Enabled: 1
-  m_Alpha: 0
+  m_Alpha: 1
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -1252,11 +1254,11 @@ RectTransform:
   m_LocalScale: {x: 0.67304, y: 0.67304, z: 0.67304}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 8851020355425224490}
+  m_Father: {fileID: 4023353993944530837}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1587, y: -969}
+  m_AnchoredPosition: {x: 1820, y: -767}
   m_SizeDelta: {x: 1440, y: 3000.7327}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4601335868612547822
@@ -1919,7 +1921,6 @@ GameObject:
   - component: {fileID: 3844370528968427712}
   - component: {fileID: 6807448173840257300}
   - component: {fileID: 1051434187395422728}
-  - component: {fileID: 420615140875012962}
   m_Layer: 5
   m_Name: DIM BG
   m_TagString: Untagged
@@ -1999,35 +2000,6 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
---- !u!114 &420615140875012962
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8121872656962983947}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7dd50f871a60b4bbe88a71d308b2613f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  canvasGroup: {fileID: 1051434187395422728}
-  lineText: {fileID: 0}
-  showCharacterNameInLine: 1
-  characterNameText: {fileID: 0}
-  characterNameContainer: {fileID: 0}
-  useFadeEffect: 1
-  fadeUpDuration: 0.25
-  fadeDownDuration: 0.1
-  autoAdvance: 0
-  autoAdvanceDelay: 1
-  typewriterStyle: 1
-  lettersPerSecond: 60
-  wordsPerSecond: 10
-  customTypewriter:
-    targetObject: {fileID: 0}
-  eventHandlers:
-  - {fileID: 0}
 --- !u!1 &8851020354744546557
 GameObject:
   m_ObjectHideFlags: 0
@@ -2093,7 +2065,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: NAME
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2201,8 +2173,6 @@ RectTransform:
   - {fileID: 2455953891129549851}
   - {fileID: 8851020355667864734}
   - {fileID: 3965978803031232686}
-  - {fileID: 4199264576848366733}
-  - {fileID: 8838510654047749894}
   m_Father: {fileID: 4023353993944530837}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
@@ -2488,7 +2458,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: asdasd asdasd
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
