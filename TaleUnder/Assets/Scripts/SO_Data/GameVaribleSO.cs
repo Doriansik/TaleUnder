@@ -3,6 +3,9 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "Var_", menuName = "Core/Game Variable")]
 public class GameVariableSO : ScriptableObject
 {
-    [Tooltip("Mo¿esz tu wpisaæ notatkê dla siebie, np. 0=Nieznane, 1=W trakcie, 2=Zakoñczone")]
+    [Tooltip("Aktualna wartoÅ›Ä‡ tej flagi (np. 0, 1, 2)")]
+    public int currentValue = 0;
+
+    [Tooltip("Notatka dla Ciebie, np. 0=Nieznane, 1=Zrobione")]
     [TextArea] public string description;
 }

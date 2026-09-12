@@ -1783,9 +1783,9 @@ GameObject:
   m_Component:
   - component: {fileID: 506308390}
   - component: {fileID: 506308389}
-  - component: {fileID: 506308388}
-  - component: {fileID: 506308391}
   - component: {fileID: 506308392}
+  - component: {fileID: 506308393}
+  - component: {fileID: 506308394}
   m_Layer: 0
   m_Name: TEST
   m_TagString: Untagged
@@ -1793,25 +1793,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &506308388
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 506308386}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 91e26d7bfd48f9e4db29044440731cde, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InteractableTrigger
-  targetVariable: {fileID: 11400000, guid: 328ef14b2594b224097d4b7790490a0d, type: 2}
-  action: 0
-  valueToApply: 1
-  disableSelfAfterUse: 1
-  onInteract:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!212 &506308389
 SpriteRenderer:
   serializedVersion: 3
@@ -1890,7 +1871,32 @@ Transform:
   - {fileID: 1712099364}
   m_Father: {fileID: 1100455091}
   m_LocalEulerAnglesHint: {x: 30, y: 0, z: 0}
---- !u!65 &506308391
+--- !u!114 &506308392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 506308386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4008b0bc4dea6ff47ada8d6846bf24c6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DialogueTrigger
+--- !u!114 &506308393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 506308386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a122aa4177e6c34aadf95e062cbfe66, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::YarnInteractable
+  startNode: TestMorfina
+--- !u!65 &506308394
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1909,21 +1915,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 20.48, y: 35.117805, z: 24.1678}
-  m_Center: {x: 0, y: -3.5296721, z: 1.124053}
---- !u!114 &506308392
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 506308386}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4008b0bc4dea6ff47ada8d6846bf24c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::DialogueTrigger
-  dialogueToPlay: {fileID: 11400000, guid: f17a085b84d2bfc4fa1c44b894fc2ec1, type: 2}
+  m_Size: {x: 20.48, y: 20.48, z: 21.51744}
+  m_Center: {x: 0, y: 0.0000019052873, z: 0.61981726}
 --- !u!1 &506778055
 GameObject:
   m_ObjectHideFlags: 0

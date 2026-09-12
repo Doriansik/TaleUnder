@@ -2,6 +2,7 @@ using UnityEngine;
 using SaintsField;
 
 public class PlayerMovement : MonoBehaviour
+
 {
     [Separator("Character Settings")]
 
@@ -17,6 +18,7 @@ public class PlayerMovement : MonoBehaviour
 
     void Update()
     {
+        if (InputManager.Instance != null && InputManager.Instance.isDialogueActive) return;
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveZ = Input.GetAxisRaw("Vertical");
 

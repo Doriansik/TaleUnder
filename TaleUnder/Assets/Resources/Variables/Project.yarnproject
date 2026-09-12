@@ -8,7 +8,7 @@
     "./Samples/Yarn Spinner*/*"
   ],
   "localisation": {},
-  "baseLanguage": "pl",
+  "baseLanguage": "en",
   "compilerOptions": {
     "diagnosticsSeverity": {}
   }

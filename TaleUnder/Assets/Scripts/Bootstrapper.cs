@@ -5,6 +5,11 @@ public static class Bootstrapper
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     public static void Execute()
     {
+        if (GameObject.Find("[GAME_CORE]") != null)
+        {
+            return;
+        }
+
         GameObject corePrefab = Resources.Load<GameObject>("[GAME_CORE]");
 
         if (corePrefab == null)
@@ -14,6 +19,7 @@ public static class Bootstrapper
         }
 
         GameObject coreInstance = Object.Instantiate(corePrefab);
+        coreInstance.name = "[GAME_CORE]";
         Object.DontDestroyOnLoad(coreInstance);
     }
 }

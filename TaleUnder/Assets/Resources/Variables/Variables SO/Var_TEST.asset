@@ -12,4 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5553369536beb74591550041e58ca8f, type: 3}
   m_Name: Var_TEST
   m_EditorClassIdentifier: Assembly-CSharp::GameVariableSO
+  currentValue: 0
   description: Obama is DEAD!

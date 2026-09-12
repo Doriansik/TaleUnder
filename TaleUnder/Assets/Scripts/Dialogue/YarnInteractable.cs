@@ -5,6 +5,7 @@ using Yarn.Unity;
 public class YarnInteractable : MonoBehaviour
 {
     [Required] public string startNode = "Start";
+    
     private bool isPlayerInRange = false;
     private DialogueRunner dialogueRunner;
 
@@ -15,15 +16,33 @@ public class YarnInteractable : MonoBehaviour
 
     void Update()
     {
-        if (isPlayerInRange && Input.GetKeyDown(KeyCode.Z))
+        if (dialogueRunner != null && dialogueRunner.IsDialogueRunning)
         {
-            if (dialogueRunner != null && !dialogueRunner.IsDialogueRunning)
+            return;
+        }
+
+        if (isPlayerInRange && InputManager.Instance != null && InputManager.Instance.GetInteractDown())
+        {
+            if (dialogueRunner != null)
             {
-                dialogueRunner.StartDialogue(startNode);
+                _ = dialogueRunner.StartDialogue(startNode);
             }
         }
     }
 
-    void OnTriggerEnter(Collider other) { if (other.CompareTag("Player")) isPlayerInRange = true; }
-    void OnTriggerExit(Collider other) { if (other.CompareTag("Player")) isPlayerInRange = false; }
+    void OnTriggerEnter(Collider other) 
+    { 
+        if (other.CompareTag("Player")) 
+        {
+            isPlayerInRange = true;
+        }
+    }
+    
+    void OnTriggerExit(Collider other) 
+    { 
+        if (other.CompareTag("Player")) 
+        {
+            isPlayerInRange = false;
+        }
+    }
 }

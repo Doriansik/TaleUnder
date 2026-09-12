@@ -1,14 +1,24 @@
-﻿title: Start
+﻿title: TestMorfina
 ---
-<<show_avatar NPC Happy>>
-NPC: Wreszcie jesteś! Mamy problem z systemem flag.
-Player: Spokojnie, już wszystko podłączam.
-NPC: Jesteś pewien, że zadziała?
--> Tak, to solidna architektura.
-    <<show_avatar NPC Neutral>>
-    NPC: Obyś miał rację.
-    <<set_var Quest_MainStory 1>>
--> Nie mam pojęcia, klikam na oślep.
-    <<show_avatar NPC Surprised>>
-    NPC: To nie wróży nic dobrego...
+<<show_avatar NPC Morfina Happy>>
+Morfina: EOEOEOOEOEOEOEOOEOEOE
+
+<<show_avatar NPC MC Neutral>>
+Gracz: ELO ZELOOO!
+
+<<show_avatar NPC Morfina Happy>>
+Morfina: Przetestujmy to! Podejmij decyzję.
+
+<<show_avatar Player MC Neutral>>
+-> Uruchom misję (Ustaw flagę na 1).
+    <<show_avatar NPC Morfina Happy>>
+    Morfina: Świetny wybór! Zapisuję postęp.
+    <<set_var Var_SZAFA 1>>
+-> Odrzuć misję (Smutna Morfina).
+    <<show_avatar NPC Morfina Sad>>
+    Morfina: ALE JAK TO
+    <<set_var Quest_MainStory 0>>
+
+<<hide_avatars>>
+Morfina: Do zobaczenia później!
 ===
