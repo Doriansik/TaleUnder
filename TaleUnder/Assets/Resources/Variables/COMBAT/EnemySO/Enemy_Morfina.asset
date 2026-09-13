@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 254c2709c08411f44bd309560910cd74, type: 3}
+  m_Name: Enemy_Morfina
+  m_EditorClassIdentifier: Assembly-CSharp::EnemySO
+  enemyName: Morfina
+  enemyPrefab: {fileID: 4589645823684247924, guid: 04d4e169df69a6345841cd25261e7183, type: 3}
+  maxHP: 15
+  hitsToBecomeFan: 3
+  attackPatterns:
+  - {fileID: 11400000, guid: e20ee1e0ee0bb6e448f6053e0560cb97, type: 2}

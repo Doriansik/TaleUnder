@@ -180,6 +180,8 @@ MonoBehaviour:
     modifyFOV: 0
     targetFOV: 60
   isStaticRoomCamera: 1
+  enterTransition: 1
+  enterDuration: 1
   returnToDefaultOnExit: 1
   exitTransition: 1
   exitDuration: 1
@@ -1594,6 +1596,8 @@ MonoBehaviour:
     modifyFOV: 0
     targetFOV: 60
   isStaticRoomCamera: 1
+  enterTransition: 0
+  enterDuration: 1
   returnToDefaultOnExit: 1
   exitTransition: 0
   exitDuration: 1
@@ -1786,6 +1790,8 @@ MonoBehaviour:
     modifyFOV: 0
     targetFOV: 60
   isStaticRoomCamera: 1
+  enterTransition: 2
+  enterDuration: 1
   returnToDefaultOnExit: 1
   exitTransition: 2
   exitDuration: 1

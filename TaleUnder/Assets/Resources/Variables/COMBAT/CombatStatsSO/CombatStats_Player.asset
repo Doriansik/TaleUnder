@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b9cce78893feac418fa6b8fd8579b90, type: 3}
+  m_Name: CombatStats_Player
+  m_EditorClassIdentifier: Assembly-CSharp::CombatStatsSO
+  currentLevel: 1
+  currentXP: 0
+  xpToNextLevel: 5
+  maxHP: 20
+  currentHP: 20
+  maxPP: 10
+  currentPP: 10
+  baseAttack: 5

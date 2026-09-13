@@ -272,6 +272,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RhythmManager
   musicSource: {fileID: 1960533102226983505}
   beatsPerMeasure: 4
+  fadeDuration: 0.5
+  engineBufferTime: 0.5
 --- !u!82 &1960533102226983505
 AudioSource:
   m_ObjectHideFlags: 0
@@ -383,7 +385,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RhythmMetronome
   strongBeatSound: {fileID: 8300000, guid: 6c729a8df206c16468570f8517021ec4, type: 3}
   weakBeatSound: {fileID: 8300000, guid: 993fb453651902248b3b03cad3ec879d, type: 3}
-  isMuted: 0
+  isMuted: 1
 --- !u!82 &3376856866565460198
 AudioSource:
   m_ObjectHideFlags: 0

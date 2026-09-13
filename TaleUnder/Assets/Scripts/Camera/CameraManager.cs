@@ -105,7 +105,7 @@ public class CameraManager : MonoBehaviour
         return targetPos;
     }
 
-    public void ApplySetup(CameraSetup setup, bool stayStatic = false)
+    public void ApplySetup(CameraSetup setup, bool stayStatic = false, CameraTransitionType enterTransition = CameraTransitionType.Smooth, float enterDuration = 1f)
     {
         if (setup.targetTransform == null) return;
 
@@ -117,30 +117,30 @@ public class CameraManager : MonoBehaviour
 
         if (setup.modifyFOV)
         {
-            currentSequence.Group(Tween.CameraFieldOfView(mainCamera, setup.targetFOV, setup.duration, setup.easeType));
+            currentSequence.Group(Tween.CameraFieldOfView(mainCamera, setup.targetFOV, enterDuration, setup.easeType));
         }
 
-        switch (setup.transitionType)
+        switch (enterTransition)
         {
             case CameraTransitionType.Instant:
                 cameraTransform.position = setup.targetTransform.position;
                 cameraTransform.rotation = setup.targetTransform.rotation;
                 break;
             case CameraTransitionType.Smooth:
-                currentSequence.Chain(Tween.Position(cameraTransform, setup.targetTransform.position, setup.duration, setup.easeType));
-                currentSequence.Group(Tween.Rotation(cameraTransform, setup.targetTransform.rotation, setup.duration, setup.easeType));
+                currentSequence.Chain(Tween.Position(cameraTransform, setup.targetTransform.position, enterDuration, setup.easeType));
+                currentSequence.Group(Tween.Rotation(cameraTransform, setup.targetTransform.rotation, enterDuration, setup.easeType));
                 break;
             case CameraTransitionType.Fade:
                 if (fadeImage != null) fadeImage.color = setup.fadeColor;
                 if (fadeCanvasGroup != null)
                 {
-                    currentSequence.Chain(Tween.Alpha(fadeCanvasGroup, 1f, setup.duration / 2f));
+                    currentSequence.Chain(Tween.Alpha(fadeCanvasGroup, 1f, enterDuration / 2f));
                     currentSequence.ChainCallback(() =>
                     {
                         cameraTransform.position = setup.targetTransform.position;
                         cameraTransform.rotation = setup.targetTransform.rotation;
                     });
-                    currentSequence.Chain(Tween.Alpha(fadeCanvasGroup, 0f, setup.duration / 2f));
+                    currentSequence.Chain(Tween.Alpha(fadeCanvasGroup, 0f, enterDuration / 2f));
                 }
                 break;
         }

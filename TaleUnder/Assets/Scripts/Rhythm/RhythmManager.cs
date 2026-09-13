@@ -10,6 +10,7 @@ public class RhythmManager : MonoBehaviour
 
     [SerializeField] private AudioSource musicSource;
     [SerializeField] private int beatsPerMeasure = 4;
+    public float SecondsPerBeat => (float)(60.0 / currentBPM);
     [SerializeField] private float fadeDuration = 0.5f;
     [SerializeField] private double engineBufferTime = 0.5;
 
