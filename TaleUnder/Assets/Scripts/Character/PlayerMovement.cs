@@ -34,6 +34,9 @@ public class PlayerMovement : MonoBehaviour
         HandleInvincibility();
 
         if (IsInCombat) return;
+        
+        // Nowa linijka blokująca ruch, gdy aktywny jest dialog z Yarn Spinnera
+        if (InputManager.Instance != null && InputManager.Instance.isDialogueActive) return;
 
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveZ = Input.GetAxisRaw("Vertical");
