@@ -86,6 +86,7 @@ GameObject:
   - component: {fileID: 5488567305856625903}
   - component: {fileID: 3224432038808091813}
   - component: {fileID: 1536974964192068491}
+  - component: {fileID: -1564845280998651174}
   m_Layer: 0
   m_Name: Dank'zel
   m_TagString: Untagged
@@ -181,10 +182,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 138ff253d9b7e714eb3a73cab5a09d39, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RhythmBouncer
-  bounceHeight: 0.2
-  scaleMultiplier: 1.05
+  bounceStrength: 0.2
+  scaleStrength: 0.05
   duration: 0.15
   targetGraphic: {fileID: 5488567305856625903}
+--- !u!114 &-1564845280998651174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2064876700190148960}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e3ee95c16073104ea26a08d29cea774, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Billboard2D
+  targetCamera: {fileID: 0}
 --- !u!1 &2557928873027671483
 GameObject:
   m_ObjectHideFlags: 0

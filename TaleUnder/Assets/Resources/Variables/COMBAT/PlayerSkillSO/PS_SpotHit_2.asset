@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PS_SpotHit_2
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillSO
   skillName: Spot Hit 2
-  ppCost: 0
+  ppCost: 5
   minigamePrefab: {fileID: 4961667422044380283, guid: fa3469a118499294288ea1dfe8cc4238, type: 3}
   successPose: {fileID: 0}
   failPose: {fileID: 0}
