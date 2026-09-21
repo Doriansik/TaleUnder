@@ -3,8 +3,9 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using PrimeTween;
 using System.Collections.Generic;
+using Unity.Cinemachine;
 
-public enum CombatState { ActionMenu, TargetSelection, AttackMinigame, DefenseGrid, Victory, Defeat }
+public enum CombatState { ActionMenu, SkillSelection, ItemSelection, TargetSelection, AttackMinigame, DefenseGrid, Victory, Defeat }
 
 public class CombatManager : MonoBehaviour
 {
@@ -13,42 +14,54 @@ public class CombatManager : MonoBehaviour
 
     public CombatState currentState = CombatState.ActionMenu;
     public EncounterSO currentEncounter;
-    
+
     [Header("Stats & UI")]
     public CombatStatsSO playerStats;
     public Slider playerHPSlider;
     public Slider playerPPSlider;
-    public Slider enemyHPSlider;
-    
+
     [Header("Arena Setup")]
     public Transform environmentHolder;
-    public Transform enemySpawnPoint;
     public Transform playerSpawnPoint;
+    public Transform[] enemySpawnPoints; 
 
-    [Header("Action Menu References")]
+    [Header("Camera References")]
+    public CinemachineCamera vcamCombatMain;
+    public CinemachineCamera vcamTargetFocus;
+    public CinemachineCamera vcamAttackFocus;
+    public CinemachineTargetGroup attackTargetGroup;
+
+    [Header("Action Menu")]
     public RectTransform actionMenuContainer;
     public GameObject defenseGridContainer;
     public Image[] actionButtons;
     public Color selectedActionColor = Color.yellow;
     public Color defaultActionColor = Color.white;
+    public PlayerSkillSO basicAttackSkill;
 
-    [Header("Game Over References")]
+    [Header("Skill Menu")]
+    public RectTransform skillMenuContainer;
+    public Image[] skillButtons;
+    public PlayerSkillSO[] equippedSkills;
+    
+    [Header("Item Menu")]
+    public RectTransform itemMenuContainer;
+    public Image[] itemButtons;
+    public ItemSO[] inventory;
+
+    [Header("Game Over / Victory")]
     public GameObject gameOverPanel;
     public CanvasGroup gameOverCanvasGroup;
     public Image[] gameOverButtons;
-
-    [Header("Victory References")]
     public GameObject victoryPanel;
     public CanvasGroup victoryCanvasGroup;
     public Image[] victoryButtons;
-    public string overworldSceneName = "OverworldScene"; // Wpisz tu nazwę swojej głównej sceny
 
-    [Header("Attack Minigame")]
+    [Header("Combat Flow")]
     public GameObject normalMetronomeContainer;
     public CanvasGroup combatDimmer;
-    public SpotHitMinigame spotHitMinigame;
-    public int warmupBeats = 2; // Ile uderzeń metronomu czekamy przed startem
-    
+    public int warmupBeats = 2;
+
     [Header("Grid References")]
     public CombatGridPlayer gridPlayer;
     public CombatGridVisuals gridVisuals;
@@ -61,11 +74,18 @@ public class CombatManager : MonoBehaviour
     public AudioClip damageSFX;
     public AudioClip warmupSFX;
     public AudioClip stepSFX;
-    
+
     private int selectedActionIndex = 0;
+    private int selectedSkillIndex = 0;
+    private int selectedItemIndex = 0;
     private int gameOverSelectedIndex = 0;
     private int victorySelectedIndex = 0;
     private int selectedTargetIndex = 0;
+    
+    private PlayerSkillSO activeSkillSO;
+    private ItemSO activeItemSO;
+    private ICombatMinigame activeMinigameInstance;
+    
     private bool isDefending = false;
     private bool isPatternActive = false;
     private int currentPatternBeat = 0;
@@ -74,11 +94,12 @@ public class CombatManager : MonoBehaviour
     private int warmupCounter = 0;
     private int attackMinigameBeat = 0;
     
-    private int maxEnemyHP;
-    private int currentEnemyHP;
     private List<GameObject> activeEnemies = new List<GameObject>();
+    private List<EnemyCombatUI> enemyUIList = new List<EnemyCombatUI>();
+    
     private bool isRunningAway = false;
     private bool tookDamageDuringRun = false;
+    private Transform playerRootTransform;
 
     public void Awake()
     {
@@ -96,6 +117,11 @@ public class CombatManager : MonoBehaviour
     {
         PlayerMovement.IsInCombat = true;
         AudioListener.volume = 1f;
+        
+        if (vcamCombatMain != null) vcamCombatMain.Priority = 10;
+        if (vcamTargetFocus != null) vcamTargetFocus.Priority = 0;
+        if (vcamAttackFocus != null) vcamAttackFocus.Priority = 0;
+
         InitializeEncounter();
 
         if (currentEncounter != null && RhythmManager.Instance != null)
@@ -116,11 +142,10 @@ public class CombatManager : MonoBehaviour
     public void Update()
     {
         if (currentState == CombatState.ActionMenu) HandleActionMenuInput();
+        else if (currentState == CombatState.SkillSelection) HandleSkillSelectionInput();
+        else if (currentState == CombatState.ItemSelection) HandleItemSelectionInput();
         else if (currentState == CombatState.TargetSelection) HandleTargetSelectionInput();
-        else if (currentState == CombatState.DefenseGrid)
-        {
-            if (gridPlayer != null) gridPlayer.ProcessInput();
-        }
+        else if (currentState == CombatState.DefenseGrid && gridPlayer != null) gridPlayer.ProcessInput();
         else if (currentState == CombatState.Defeat) HandleGameOverInput();
         else if (currentState == CombatState.Victory) HandleVictoryInput();
     }
@@ -128,6 +153,15 @@ public class CombatManager : MonoBehaviour
     private void InitializeEncounter()
     {
         activeEnemies.Clear();
+        enemyUIList.Clear();
+
+        GameObject playerRoot = GameObject.FindGameObjectWithTag("Player");
+        if (playerRoot != null && playerSpawnPoint != null)
+        {
+            playerRootTransform = playerRoot.transform;
+            playerRootTransform.position = playerSpawnPoint.position;
+            playerRootTransform.rotation = playerSpawnPoint.rotation;
+        }
 
         if (playerStats != null)
         {
@@ -137,25 +171,26 @@ public class CombatManager : MonoBehaviour
 
         if (currentEncounter == null) return;
 
-        if (currentEncounter.combatEnvironmentPrefab != null)
-        {
-            Instantiate(currentEncounter.combatEnvironmentPrefab, environmentHolder.position, environmentHolder.rotation, environmentHolder);
-        }
+        if (currentEncounter.combatEnvironmentPrefab != null) Instantiate(currentEncounter.combatEnvironmentPrefab, environmentHolder.position, environmentHolder.rotation, environmentHolder);
 
-        if (currentEncounter.enemiesInEncounter != null && currentEncounter.enemiesInEncounter.Length > 0)
+        if (currentEncounter.enemiesInEncounter != null && enemySpawnPoints != null)
         {
-            EnemySO primaryEnemy = currentEncounter.enemiesInEncounter[0];
-            if (primaryEnemy != null)
+            int limit = Mathf.Min(currentEncounter.enemiesInEncounter.Length, enemySpawnPoints.Length);
+            
+            for (int i = 0; i < limit; i++)
             {
-                maxEnemyHP = primaryEnemy.maxHP;
-                currentEnemyHP = maxEnemyHP;
-                
-                if (enemyHPSlider != null) { enemyHPSlider.maxValue = maxEnemyHP; enemyHPSlider.value = currentEnemyHP; }
-
-                if (primaryEnemy.enemyPrefab != null)
+                EnemySO enemyData = currentEncounter.enemiesInEncounter[i];
+                if (enemyData != null && enemyData.enemyPrefab != null)
                 {
-                    GameObject spawnedEnemy = Instantiate(primaryEnemy.enemyPrefab, enemySpawnPoint.position, enemySpawnPoint.rotation);
+                    GameObject spawnedEnemy = Instantiate(enemyData.enemyPrefab, enemySpawnPoints[i].position, enemySpawnPoints[i].rotation);
                     activeEnemies.Add(spawnedEnemy);
+                    
+                    EnemyCombatUI uiComp = spawnedEnemy.GetComponentInChildren<EnemyCombatUI>(true);
+                    if (uiComp != null)
+                    {
+                        uiComp.Initialize(enemyData.maxHP);
+                        enemyUIList.Add(uiComp);
+                    }
                 }
             }
         }
@@ -164,16 +199,19 @@ public class CombatManager : MonoBehaviour
     public void EnterActionMenu()
     {
         currentState = CombatState.ActionMenu;
-        
+
+        if (vcamCombatMain != null) vcamCombatMain.Priority = 10;
+        if (vcamTargetFocus != null) vcamTargetFocus.Priority = 0;
+        if (vcamAttackFocus != null) vcamAttackFocus.Priority = 0;
+
         if (defenseGridContainer != null) defenseGridContainer.SetActive(false);
+        if (skillMenuContainer != null) skillMenuContainer.gameObject.SetActive(false);
+        if (itemMenuContainer != null) itemMenuContainer.gameObject.SetActive(false);
         if (actionMenuContainer != null) actionMenuContainer.gameObject.SetActive(true);
         if (normalMetronomeContainer != null) normalMetronomeContainer.SetActive(true);
-        
-        if (combatDimmer != null) 
-        {
-            Tween.Alpha(combatDimmer, 0f, 0.3f).OnComplete(() => combatDimmer.gameObject.SetActive(false));
-        }
-        
+
+        if (combatDimmer != null) Tween.Alpha(combatDimmer, 0f, 0.3f).OnComplete(() => combatDimmer.gameObject.SetActive(false));
+
         UpdateActionMenuVisuals();
     }
 
@@ -200,17 +238,26 @@ public class CombatManager : MonoBehaviour
     {
         for (int i = 0; i < actionButtons.Length; i++)
         {
-            if (actionButtons[i] != null)
-                actionButtons[i].color = (i == selectedActionIndex) ? selectedActionColor : defaultActionColor;
+            if (actionButtons[i] != null) actionButtons[i].color = (i == selectedActionIndex) ? selectedActionColor : defaultActionColor;
         }
     }
 
     private void ExecuteAction(int actionIndex)
     {
+        activeSkillSO = null;
+        activeItemSO = null;
+
         switch (actionIndex)
         {
-            case 0: 
+            case 0:
+                activeSkillSO = basicAttackSkill;
                 StartTargetSelection(); 
+                break;
+            case 1:
+                StartSkillSelection();
+                break;
+            case 2:
+                StartItemSelection();
                 break;
             case 3: 
                 StartDefensePhase(); 
@@ -223,11 +270,171 @@ public class CombatManager : MonoBehaviour
         }
     }
 
+    private void StartSkillSelection()
+    {
+        if (equippedSkills == null || equippedSkills.Length == 0) return;
+
+        currentState = CombatState.SkillSelection;
+        selectedSkillIndex = 0;
+        if (actionMenuContainer != null) actionMenuContainer.gameObject.SetActive(false);
+        if (skillMenuContainer != null) skillMenuContainer.gameObject.SetActive(true);
+        UpdateSkillMenuVisuals();
+    }
+
+    private void HandleSkillSelectionInput()
+    {
+        int maxIndex = equippedSkills.Length - 1;
+
+        if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
+        {
+            selectedSkillIndex = Mathf.Clamp(selectedSkillIndex + 1, 0, maxIndex);
+            UpdateSkillMenuVisuals();
+        }
+        else if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+        {
+            selectedSkillIndex = Mathf.Clamp(selectedSkillIndex - 1, 0, maxIndex);
+            UpdateSkillMenuVisuals();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.Return))
+        {
+            PlayerSkillSO chosenSkill = equippedSkills[selectedSkillIndex];
+            if (playerStats.currentPP >= chosenSkill.ppCost)
+            {
+                activeSkillSO = chosenSkill;
+                StartTargetSelection();
+            }
+            else PlaySFX(damageSFX);
+        }
+        else if (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.Escape)) EnterActionMenu();
+    }
+
+    private void UpdateSkillMenuVisuals()
+    {
+        for (int i = 0; i < skillButtons.Length; i++)
+        {
+            if (skillButtons[i] != null) skillButtons[i].color = (i == selectedSkillIndex) ? selectedActionColor : defaultActionColor;
+        }
+    }
+
+    private void StartItemSelection()
+    {
+        if (inventory == null || inventory.Length == 0) return;
+
+        currentState = CombatState.ItemSelection;
+        selectedItemIndex = 0;
+        if (actionMenuContainer != null) actionMenuContainer.gameObject.SetActive(false);
+        if (itemMenuContainer != null) itemMenuContainer.gameObject.SetActive(true);
+        UpdateItemMenuVisuals();
+    }
+
+    private void HandleItemSelectionInput()
+    {
+        int maxIndex = inventory.Length - 1;
+
+        if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
+        {
+            selectedItemIndex = Mathf.Clamp(selectedItemIndex + 1, 0, maxIndex);
+            UpdateItemMenuVisuals();
+        }
+        else if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetKeyDown(KeyCode.W))
+        {
+            selectedItemIndex = Mathf.Clamp(selectedItemIndex - 1, 0, maxIndex);
+            UpdateItemMenuVisuals();
+        }
+
+        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.Return))
+        {
+            ItemSO chosenItem = inventory[selectedItemIndex];
+            if (chosenItem == null) return;
+            
+            activeItemSO = chosenItem;
+            
+            if (activeItemSO.effectType == ItemEffectType.DamageEnemy)
+            {
+                StartTargetSelection();
+            }
+            else
+            {
+                ExecuteItemEffect(null);
+            }
+        }
+        else if (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.Escape)) EnterActionMenu();
+    }
+
+    private void UpdateItemMenuVisuals()
+    {
+        for (int i = 0; i < itemButtons.Length; i++)
+        {
+            if (itemButtons[i] != null) itemButtons[i].color = (i == selectedItemIndex) ? selectedActionColor : defaultActionColor;
+        }
+    }
+
+    private void ExecuteItemEffect(Transform enemyTarget)
+    {
+        if (activeItemSO == null) return;
+
+        if (activeItemSO.useSFX != null) PlaySFX(activeItemSO.useSFX);
+
+        switch (activeItemSO.effectType)
+        {
+            case ItemEffectType.HealHP:
+                playerStats.currentHP = Mathf.Clamp(playerStats.currentHP + activeItemSO.effectValue, 0, playerStats.maxHP);
+                if (playerHPSlider != null) Tween.UISliderValue(playerHPSlider, playerStats.currentHP, 0.3f, Ease.OutBounce);
+                if (activeItemSO.vfxPrefab != null && playerRootTransform != null) Instantiate(activeItemSO.vfxPrefab, playerRootTransform.position, Quaternion.identity);
+                Tween.Delay(1f).OnComplete(StartDefensePhase);
+                break;
+
+            case ItemEffectType.HealPP:
+                playerStats.currentPP = Mathf.Clamp(playerStats.currentPP + activeItemSO.effectValue, 0, playerStats.maxPP);
+                if (playerPPSlider != null) Tween.UISliderValue(playerPPSlider, playerStats.currentPP, 0.3f, Ease.OutBounce);
+                if (activeItemSO.vfxPrefab != null && playerRootTransform != null) Instantiate(activeItemSO.vfxPrefab, playerRootTransform.position, Quaternion.identity);
+                Tween.Delay(1f).OnComplete(StartDefensePhase);
+                break;
+
+            case ItemEffectType.DamageEnemy:
+                if (enemyTarget != null && selectedTargetIndex >= 0)
+                {
+                    EnemyCombatUI targetUI = enemyUIList[selectedTargetIndex];
+                    int newHP = targetUI.GetCurrentHP() - activeItemSO.effectValue;
+                    targetUI.UpdateHP(newHP);
+
+                    if (activeItemSO.vfxPrefab != null) Instantiate(activeItemSO.vfxPrefab, enemyTarget.position, Quaternion.identity);
+                    Tween.ShakeLocalPosition(enemyTarget, strength: new Vector3(0.5f, 0f, 0f), duration: 0.2f);
+
+                    if (newHP <= 0)
+                    {
+                        Tween.Scale(enemyTarget, Vector3.zero, 0.5f).OnComplete(() => activeEnemies[selectedTargetIndex].SetActive(false));
+                        Tween.Delay(1f).OnComplete(() => { if (GetNextAliveEnemyIndex(0) == -1) TriggerVictory(); else StartDefensePhase(); });
+                    }
+                    else
+                    {
+                        Tween.Delay(1f).OnComplete(StartDefensePhase);
+                    }
+                }
+                break;
+        }
+
+        if (itemMenuContainer != null) itemMenuContainer.gameObject.SetActive(false);
+        ClearHighlights();
+    }
+
     private void StartTargetSelection()
     {
         if (activeEnemies.Count == 0) return;
+
         currentState = CombatState.TargetSelection;
-        selectedTargetIndex = 0;
+        if (skillMenuContainer != null) skillMenuContainer.gameObject.SetActive(false);
+        if (itemMenuContainer != null) itemMenuContainer.gameObject.SetActive(false);
+        
+        selectedTargetIndex = GetNextAliveEnemyIndex(0);
+        
+        if (selectedTargetIndex == -1)
+        {
+            TriggerVictory();
+            return;
+        }
+
         HighlightTarget();
     }
 
@@ -235,19 +442,25 @@ public class CombatManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.RightArrow) || Input.GetKeyDown(KeyCode.D))
         {
-            selectedTargetIndex = (selectedTargetIndex + 1) % activeEnemies.Count;
+            selectedTargetIndex = GetNextAliveEnemyIndex((selectedTargetIndex + 1) % activeEnemies.Count);
             HighlightTarget();
         }
         else if (Input.GetKeyDown(KeyCode.LeftArrow) || Input.GetKeyDown(KeyCode.A))
         {
-            selectedTargetIndex = (selectedTargetIndex - 1 + activeEnemies.Count) % activeEnemies.Count;
+            selectedTargetIndex = GetNextAliveEnemyIndex((selectedTargetIndex - 1 + activeEnemies.Count) % activeEnemies.Count);
             HighlightTarget();
         }
 
         if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.Return))
         {
-            ClearHighlights();
-            StartAttackMinigame();
+            if (activeItemSO != null && activeItemSO.effectType == ItemEffectType.DamageEnemy)
+            {
+                ExecuteItemEffect(activeEnemies[selectedTargetIndex].transform);
+            }
+            else
+            {
+                StartAttackMinigame();
+            }
         }
         else if (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.Escape))
         {
@@ -256,23 +469,68 @@ public class CombatManager : MonoBehaviour
         }
     }
 
+    private int GetNextAliveEnemyIndex(int startIndex)
+    {
+        for (int i = 0; i < activeEnemies.Count; i++)
+        {
+            int checkIndex = (startIndex + i) % activeEnemies.Count;
+            if (activeEnemies[checkIndex] != null && enemyUIList[checkIndex].GetCurrentHP() > 0) return checkIndex;
+        }
+        return -1;
+    }
+
     private void HighlightTarget()
     {
         for (int i = 0; i < activeEnemies.Count; i++)
         {
-            if (activeEnemies[i] != null)
+            if (activeEnemies[i] != null && enemyUIList[i] != null)
             {
-                if (i == selectedTargetIndex) Tween.Scale(activeEnemies[i].transform, Vector3.one * 1.2f, 0.2f);
-                else Tween.Scale(activeEnemies[i].transform, Vector3.one, 0.2f);
+                if (i == selectedTargetIndex)
+                {
+                    Tween.Scale(activeEnemies[i].transform, Vector3.one * 1.2f, 0.2f);
+                    enemyUIList[i].ShowUI();
+                    
+                    if (vcamTargetFocus != null)
+                    {
+                        vcamTargetFocus.Follow = activeEnemies[i].transform;
+                        vcamTargetFocus.LookAt = activeEnemies[i].transform;
+                        vcamTargetFocus.Priority = 20;
+                    }
+                }
+                else
+                {
+                    Tween.Scale(activeEnemies[i].transform, Vector3.one, 0.2f);
+                    enemyUIList[i].HideUI();
+                }
             }
         }
     }
 
     private void ClearHighlights()
     {
-        foreach (var enemy in activeEnemies)
+        for (int i = 0; i < activeEnemies.Count; i++)
         {
-            if (enemy != null) Tween.Scale(enemy.transform, Vector3.one, 0.2f);
+            if (activeEnemies[i] != null)
+            {
+                Tween.Scale(activeEnemies[i].transform, Vector3.one, 0.2f);
+                if (enemyUIList[i] != null) enemyUIList[i].HideUI();
+            }
+        }
+        if (vcamTargetFocus != null) vcamTargetFocus.Priority = 0;
+    }
+
+    private void IsolateForAttack(bool isolate)
+    {
+        float targetAlpha = isolate ? 0f : 1f;
+        float duration = 0.3f;
+
+        for (int i = 0; i < activeEnemies.Count; i++)
+        {
+            if (activeEnemies[i] != null && i != selectedTargetIndex)
+            {
+                SpriteRenderer sr = activeEnemies[i].GetComponentInChildren<SpriteRenderer>();
+                if (sr != null) Tween.Color(sr, new Color(1f, 1f, 1f, targetAlpha), duration);
+            }
         }
     }
 
@@ -281,7 +539,7 @@ public class CombatManager : MonoBehaviour
         currentState = CombatState.AttackMinigame;
         isWaitingForAttackSync = true;
         warmupCounter = 0;
-        
+
         if (actionMenuContainer != null) actionMenuContainer.gameObject.SetActive(false);
         if (normalMetronomeContainer != null) normalMetronomeContainer.SetActive(false);
 
@@ -290,30 +548,104 @@ public class CombatManager : MonoBehaviour
             combatDimmer.gameObject.SetActive(true);
             Tween.Alpha(combatDimmer, 1f, 0.3f);
         }
+
+        IsolateForAttack(true);
+
+        if (attackTargetGroup != null && playerRootTransform != null && activeEnemies.Count > selectedTargetIndex && activeEnemies[selectedTargetIndex] != null)
+        {
+            attackTargetGroup.Targets.Clear();
+            attackTargetGroup.Targets.Add(new CinemachineTargetGroup.Target { Object = playerRootTransform, Weight = 1f, Radius = 2f });
+            attackTargetGroup.Targets.Add(new CinemachineTargetGroup.Target { Object = activeEnemies[selectedTargetIndex].transform, Weight = 1f, Radius = 2f });
+        }
+
+        if (vcamAttackFocus != null) vcamAttackFocus.Priority = 30;
+
+        if (activeSkillSO != null && activeSkillSO.minigamePrefab != null)
+        {
+            GameObject spawnedMinigame = Instantiate(activeSkillSO.minigamePrefab);
+            activeMinigameInstance = spawnedMinigame.GetComponent<ICombatMinigame>();
+            
+            if (playerPPSlider != null)
+            {
+                playerStats.currentPP = Mathf.Clamp(playerStats.currentPP - activeSkillSO.ppCost, 0, playerStats.maxPP);
+                Tween.UISliderValue(playerPPSlider, playerStats.currentPP, 0.3f, Ease.OutQuad);
+            }
+        }
+        else
+        {
+            Debug.LogError("No Active Skill SO or Minigame Prefab found!");
+            OnAttackMinigameEnded(0f);
+        }
+    }
+
+    private void HandleBeat(int absoluteBeat, int measureBeat)
+    {
+        if (currentState == CombatState.AttackMinigame)
+        {
+            if (isWaitingForAttackSync)
+            {
+                warmupCounter++;
+                if (warmupCounter >= warmupBeats)
+                {
+                    isWaitingForAttackSync = false;
+                    attackMinigameBeat = 1;
+                    
+                    if (activeMinigameInstance != null)
+                    {
+                        activeMinigameInstance.OnMinigameEnd = OnAttackMinigameEnded;
+                        if (activeEnemies.Count > selectedTargetIndex && activeEnemies[selectedTargetIndex] != null) activeMinigameInstance.StartMinigame(activeEnemies[selectedTargetIndex].transform, activeSkillSO);
+                        activeMinigameInstance.ExecuteBeat(attackMinigameBeat);
+                    }
+                }
+                else PlaySFX(warmupSFX);
+            }
+            else
+            {
+                attackMinigameBeat++;
+                if (activeMinigameInstance != null) activeMinigameInstance.ExecuteBeat(attackMinigameBeat);
+                if (attackMinigameBeat < 3) PlaySFX(stepSFX);
+            }
+        }
+        else if (currentState == CombatState.DefenseGrid && isDefending)
+        {
+            if (!isPatternActive && measureBeat == 1) isPatternActive = true;
+            if (isPatternActive)
+            {
+                currentPatternBeat++;
+                if (testPattern != null) testPattern.ExecuteBeat(currentPatternBeat, this);
+            }
+        }
     }
 
     private void OnAttackMinigameEnded(float damageMultiplier)
     {
+        IsolateForAttack(false);
+        if (vcamAttackFocus != null) vcamAttackFocus.Priority = 0;
+
         if (damageMultiplier > 0f)
         {
             int finalDamage = Mathf.RoundToInt(playerStats.baseAttack * damageMultiplier);
-            if (selectedTargetIndex >= 0 && selectedTargetIndex < activeEnemies.Count)
+            
+            if (selectedTargetIndex >= 0 && selectedTargetIndex < enemyUIList.Count)
             {
-                currentEnemyHP = Mathf.Clamp(currentEnemyHP - finalDamage, 0, maxEnemyHP);
-                if (enemyHPSlider != null) Tween.UISliderValue(enemyHPSlider, currentEnemyHP, 0.3f, Ease.OutBounce);
+                EnemyCombatUI targetUI = enemyUIList[selectedTargetIndex];
+                int newHP = targetUI.GetCurrentHP() - finalDamage;
+                targetUI.UpdateHP(newHP);
+
                 Tween.ShakeLocalPosition(activeEnemies[selectedTargetIndex].transform, strength: new Vector3(0.5f, 0f, 0f), duration: 0.2f);
                 PlaySFX(damageSFX);
+
+                if (newHP <= 0)
+                {
+                    Tween.Scale(activeEnemies[selectedTargetIndex].transform, Vector3.zero, 0.5f).OnComplete(() => activeEnemies[selectedTargetIndex].SetActive(false));
+                }
             }
         }
+        
+        ClearHighlights();
 
-        if (currentEnemyHP <= 0)
-        {
-            TriggerVictory();
-        }
-        else
-        {
-            StartDefensePhase();
-        }
+        if (GetNextAliveEnemyIndex(0) == -1) TriggerVictory();
+        else StartDefensePhase();
     }
 
     private void StartDefensePhase()
@@ -322,17 +654,16 @@ public class CombatManager : MonoBehaviour
         isDefending = true;
         isPatternActive = false;
         currentPatternBeat = 0;
-        
+
         if (actionMenuContainer != null) actionMenuContainer.gameObject.SetActive(false);
         if (defenseGridContainer != null) defenseGridContainer.SetActive(true);
         if (normalMetronomeContainer != null) normalMetronomeContainer.SetActive(false);
-        
+
         if (combatDimmer != null && !combatDimmer.gameObject.activeSelf)
         {
             combatDimmer.gameObject.SetActive(true);
             Tween.Alpha(combatDimmer, 1f, 0.3f);
         }
-        
         Canvas.ForceUpdateCanvases();
         
         if (gridPlayer != null)
@@ -352,66 +683,12 @@ public class CombatManager : MonoBehaviour
             isRunningAway = false;
             if (!tookDamageDuringRun)
             {
-                ExecuteVictoryAction(); 
+                ExecuteVictoryAction(true);
                 return;
             }
         }
-
+        
         EnterActionMenu();
-    }
-
-    private void HandleBeat(int absoluteBeat, int measureBeat)
-    {
-        if (currentState == CombatState.AttackMinigame)
-        {
-            if (isWaitingForAttackSync)
-            {
-                warmupCounter++;
-
-                if (warmupCounter >= warmupBeats)
-                {
-                    isWaitingForAttackSync = false;
-                    attackMinigameBeat = 1;
-                    if (spotHitMinigame != null)
-                    {
-                        spotHitMinigame.OnMinigameEnd = OnAttackMinigameEnded;
-                        spotHitMinigame.StartMinigame();
-                        spotHitMinigame.ExecuteBeat(attackMinigameBeat);
-                        PlaySFX(stepSFX);
-                    }
-                }
-                else
-                {
-                    
-                    PlaySFX(warmupSFX); 
-                }
-            }
-            else
-            {
-                attackMinigameBeat++;
-                if (spotHitMinigame != null) 
-                {
-                    spotHitMinigame.ExecuteBeat(attackMinigameBeat);
-                    if (attackMinigameBeat < 3) PlaySFX(stepSFX);
-                }
-            }
-        }
-        else if (currentState == CombatState.DefenseGrid && isDefending)
-        {
-            if (!isPatternActive && measureBeat == 1)
-            {
-                isPatternActive = true;
-            }
-
-            if (isPatternActive)
-            {
-                currentPatternBeat++;
-                if (testPattern != null)
-                {
-                    testPattern.ExecuteBeat(currentPatternBeat, this);
-                }
-            }
-        }
     }
 
     public void CheckPlayerHit(int gridX, int gridY, int damage)
@@ -420,9 +697,10 @@ public class CombatManager : MonoBehaviour
         {
             tookDamageDuringRun = true;
             PlaySFX(damageSFX);
-            playerStats.currentHP = Mathf.Clamp(playerStats.currentHP - damage, 0, playerStats.maxHP);
             
+            playerStats.currentHP = Mathf.Clamp(playerStats.currentHP - damage, 0, playerStats.maxHP);
             if (playerHPSlider != null) Tween.UISliderValue(playerHPSlider, playerStats.currentHP, 0.3f, Ease.OutBounce);
+            
             Tween.ShakeLocalPosition(gridPlayer.transform, strength: new Vector3(25f, 25f, 0f), duration: 0.3f);
             
             if (playerStats.currentHP <= 0 && currentState != CombatState.Defeat) TriggerGameOver();
@@ -436,7 +714,7 @@ public class CombatManager : MonoBehaviour
         gameOverSelectedIndex = 0;
         
         Tween.Custom(1f, 0f, 2f, onValueChange: v => AudioListener.volume = v);
-
+        
         if (gameOverPanel != null && gameOverCanvasGroup != null)
         {
             gameOverPanel.SetActive(true);
@@ -447,7 +725,7 @@ public class CombatManager : MonoBehaviour
             UpdateGameOverVisuals();
         }
     }
-    
+
     private void TriggerVictory()
     {
         currentState = CombatState.Victory;
@@ -455,7 +733,7 @@ public class CombatManager : MonoBehaviour
         victorySelectedIndex = 0;
         
         Tween.Custom(1f, 0f, 2f, onValueChange: v => AudioListener.volume = v);
-
+        
         if (victoryPanel != null && victoryCanvasGroup != null)
         {
             victoryPanel.SetActive(true);
@@ -482,12 +760,9 @@ public class CombatManager : MonoBehaviour
             UpdateGameOverVisuals();
         }
 
-        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.Return))
-        {
-            ExecuteGameOverAction(gameOverSelectedIndex);
-        }
+        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.Return)) ExecuteGameOverAction(gameOverSelectedIndex);
     }
-    
+
     private void HandleVictoryInput()
     {
         int maxIndex = (victoryButtons != null && victoryButtons.Length > 0) ? victoryButtons.Length - 1 : 0;
@@ -503,35 +778,24 @@ public class CombatManager : MonoBehaviour
             UpdateVictoryVisuals();
         }
 
-        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.Return))
-        {
-            ExecuteVictoryAction();
-        }
+        if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.Return)) ExecuteVictoryAction();
     }
 
     private void UpdateGameOverVisuals()
     {
         if (gameOverButtons == null) return;
-        
         for (int i = 0; i < gameOverButtons.Length; i++)
         {
-            if (gameOverButtons[i] != null)
-            {
-                gameOverButtons[i].color = (i == gameOverSelectedIndex) ? selectedActionColor : defaultActionColor;
-            }
+            if (gameOverButtons[i] != null) gameOverButtons[i].color = (i == gameOverSelectedIndex) ? selectedActionColor : defaultActionColor;
         }
     }
-    
+
     private void UpdateVictoryVisuals()
     {
         if (victoryButtons == null) return;
-        
         for (int i = 0; i < victoryButtons.Length; i++)
         {
-            if (victoryButtons[i] != null)
-            {
-                victoryButtons[i].color = (i == victorySelectedIndex) ? selectedActionColor : defaultActionColor;
-            }
+            if (victoryButtons[i] != null) victoryButtons[i].color = (i == victorySelectedIndex) ? selectedActionColor : defaultActionColor;
         }
     }
 
@@ -544,30 +808,34 @@ public class CombatManager : MonoBehaviour
             case 2: ReturnToMainMenu(); break;
         }
     }
-    
+
     public void ExecuteVictoryAction(bool fled = false)
     {
         if (RhythmManager.Instance != null) RhythmManager.Instance.StopTrack();
-
+        
         CombatStatePayload.IsReturningFromCombat = true;
         CombatStatePayload.FledCombat = fled;
         CombatStatePayload.WonCombat = !fled;
-
         AudioListener.volume = 1f;
-
+        
         SceneManager.LoadScene(CombatStatePayload.ReturnSceneName);
     }
 
     public void RestartBattle()
     {
         PendingEncounter = currentEncounter;
-        if (playerStats != null) playerStats.currentHP = playerStats.maxHP; 
+        if (playerStats != null) playerStats.currentHP = playerStats.maxHP;
         if (RhythmManager.Instance != null) RhythmManager.Instance.StopTrack();
+        
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
     public void LoadGame() { }
-    public void ReturnToMainMenu() { SceneManager.LoadScene("MainMenu"); }
+
+    public void ReturnToMainMenu() 
+    {
+        SceneManager.LoadScene("MainMenu"); 
+    }
 
     public void PlaySFX(AudioClip clip)
     {

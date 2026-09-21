@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 100e30495b0e20545a530b9f80ffa06d, type: 3}
+  m_Name: PS_SpotHit_2
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerSkillSO
+  skillName: Spot Hit 2
+  ppCost: 0
+  minigamePrefab: {fileID: 4961667422044380283, guid: fa3469a118499294288ea1dfe8cc4238, type: 3}
+  successPose: {fileID: 0}
+  failPose: {fileID: 0}
+  hitSFX: {fileID: 8300000, guid: 6ea797b477834c34f99bc52d36b4eba0, type: 3}
+  missSFX: {fileID: 0}
+  hitVFXPrefab: {fileID: 880170550629029124, guid: fb50d486ee23e1b4aa1ef8bc4ffc2d17, type: 3}

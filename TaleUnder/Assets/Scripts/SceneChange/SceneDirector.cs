@@ -4,6 +4,9 @@ using UnityEngine.UI;
 using PrimeTween;
 using SaintsField;
 using System.Collections;
+using Unity.Cinemachine;
+
+public enum FadeStyle { SolidColor, CircleOut, Custom }
 
 public class SceneDirector : MonoBehaviour
 {
@@ -22,7 +25,10 @@ public class SceneDirector : MonoBehaviour
 
     public void TransitionToScene(SceneReferenceSO sceneRef, SpawnPointKeySO spawnKey, FadeStyle style, Color color, float duration)
     {
-        if (!isTransitioning) StartCoroutine(TransitionRoutine(sceneRef, spawnKey, style, color, duration));
+        if (!isTransitioning)
+        {
+            StartCoroutine(TransitionRoutine(sceneRef, spawnKey, style, color, duration));
+        }
     }
 
     private IEnumerator TransitionRoutine(SceneReferenceSO sceneRef, SpawnPointKeySO spawnKey, FadeStyle style, Color color, float duration)
@@ -37,11 +43,13 @@ public class SceneDirector : MonoBehaviour
             if (style == FadeStyle.SolidColor)
             {
                 if (cam.circleTransitionRect != null) cam.circleTransitionRect.gameObject.SetActive(false);
+                
                 if (cam.fadeImage != null)
                 {
                     cam.fadeImage.gameObject.SetActive(true);
                     cam.fadeImage.color = color;
                 }
+                
                 if (cam.fadeCanvasGroup != null)
                 {
                     cam.fadeCanvasGroup.alpha = 0f;
@@ -51,15 +59,14 @@ public class SceneDirector : MonoBehaviour
             else if (style == FadeStyle.CircleOut)
             {
                 if (cam.fadeImage != null) cam.fadeImage.gameObject.SetActive(false);
+                
                 if (cam.circleTransitionRect != null)
                 {
                     cam.circleTransitionRect.gameObject.SetActive(true);
                     Image circleImg = cam.circleTransitionRect.GetComponent<Image>();
                     if (circleImg != null) circleImg.color = color;
-
+                    
                     cam.circleTransitionRect.localScale = Vector3.zero;
-
-                    // Skaluje kó³ko do gigantycznych rozmiarów (x50), aby zakry³o ca³y ekran
                     yield return Tween.Scale(cam.circleTransitionRect, Vector3.one * 50f, duration, Ease.InSine).ToYieldInstruction();
                 }
             }
@@ -68,27 +75,21 @@ public class SceneDirector : MonoBehaviour
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneRef.sceneName);
         while (!asyncLoad.isDone) yield return null;
 
-        SpawnPoint[] allSpawns = FindObjectsByType<SpawnPoint>(FindObjectsSortMode.None);
-        bool foundSpawn = false;
+        SpawnPoint[] allSpawns = FindObjectsByType<SpawnPoint>(FindObjectsInactive.Exclude);
 
         foreach (SpawnPoint sp in allSpawns)
         {
             if (sp.spawnKey == spawnKey)
             {
                 playerTarget.position = sp.transform.position;
-                foundSpawn = true;
                 break;
             }
         }
-
-        if (!foundSpawn) Debug.LogWarning($"Spawn Point Key not found in the loaded scene!");
 
         if (cam != null)
         {
             SceneCameraConfig config = FindAnyObjectByType<SceneCameraConfig>();
             if (config != null) config.ApplyConfigNow();
-
-            cam.ReturnToDefault(CameraTransitionType.Instant, 0f);
 
             if (style == FadeStyle.SolidColor && cam.fadeCanvasGroup != null)
             {

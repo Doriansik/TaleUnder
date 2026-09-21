@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bf58cc094c4780a40bdf06cd469bb03f, type: 3}
+  m_Name: Item_PP
+  m_EditorClassIdentifier: Assembly-CSharp::ItemSO
+  itemName: PP
+  effectType: 1
+  effectValue: 5
+  useSFX: {fileID: 8300000, guid: 6ea797b477834c34f99bc52d36b4eba0, type: 3}
+  vfxPrefab: {fileID: 0}
+  emotionToApply: {fileID: 0}

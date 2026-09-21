@@ -170,21 +170,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41df7a0ddc71a60488db4137ed2d190a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraZone
-  zoneSetup:
-    targetTransform: {fileID: 2026924207}
-    transitionType: 1
-    fadeStyle: 0
-    duration: 1
-    easeType: 4
-    fadeColor: {r: 0, g: 0, b: 0, a: 1}
-    modifyFOV: 0
-    targetFOV: 60
-  isStaticRoomCamera: 1
-  enterTransition: 1
-  enterDuration: 1
-  returnToDefaultOnExit: 1
-  exitTransition: 1
-  exitDuration: 1
+  zoneCamera: {fileID: 2026924208}
+  useFadeTransition: 1
+  fadeColor: {r: 0, g: 0, b: 0, a: 1}
+  fadeHalfDuration: 0.5
 --- !u!4 &157805801
 Transform:
   m_ObjectHideFlags: 0
@@ -384,11 +373,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0bf94123594d9949b137fd8f49d7b17, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneCameraConfig
-  isSceneStatic: 0
-  staticCameraPosition: {fileID: 261590328}
-  useCameraBounds: 1
-  boundsArea: {fileID: 696458164}
-  boundsPadding: {x: 0, y: 0, z: 0}
   editorDebugSpawn: {fileID: 0}
 --- !u!4 &261590328
 Transform:
@@ -1043,7 +1027,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DoorTrigger
   targetScene: {fileID: 11400000, guid: 49c5f60d5696c5a40995f8c822b06674, type: 2}
   targetSpawnPoint: {fileID: 11400000, guid: 90d72a9c1cb4722448885b42f06c993e, type: 2}
-  transitionStyle: 2
+  transitionStyle: 1
   transitionColor: {r: 0, g: 0, b: 0, a: 1}
   transitionDuration: 0.5
 --- !u!65 &822572930
@@ -1168,6 +1152,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 919338723}
+  - component: {fileID: 919338724}
   m_Layer: 0
   m_Name: CAMERA 2
   m_TagString: Untagged
@@ -1190,6 +1175,49 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1179119215}
   m_LocalEulerAnglesHint: {x: -3.023, y: 27.839, z: -7.155}
+--- !u!114 &919338724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919338722}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCamera
+  Priority:
+    Enabled: 0
+    m_Value: 0
+  OutputChannel: 1
+  StandbyUpdate: 2
+  m_StreamingVersion: 20241001
+  m_LegacyPriority: 0
+  Target:
+    TrackingTarget: {fileID: 0}
+    LookAtTarget: {fileID: 0}
+    CustomLookAtTarget: 0
+  Lens:
+    FieldOfView: 40
+    OrthographicSize: 10
+    NearClipPlane: 0.1
+    FarClipPlane: 5000
+    Dutch: 0
+    ModeOverride: 0
+    PhysicalProperties:
+      GateFit: 2
+      SensorSize: {x: 21.946, y: 16.002}
+      LensShift: {x: 0, y: 0}
+      FocusDistance: 10
+      Iso: 200
+      ShutterSpeed: 0.005
+      Aperture: 16
+      BladeCount: 5
+      Curvature: {x: 2, y: 11}
+      BarrelClipping: 0.25
+      Anamorphism: 0
+  BlendHint: 0
 --- !u!1 &974990785
 GameObject:
   m_ObjectHideFlags: 0
@@ -1586,21 +1614,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41df7a0ddc71a60488db4137ed2d190a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraZone
-  zoneSetup:
-    targetTransform: {fileID: 919338723}
-    transitionType: 1
-    fadeStyle: 0
-    duration: 1
-    easeType: 4
-    fadeColor: {r: 0, g: 0, b: 0, a: 1}
-    modifyFOV: 0
-    targetFOV: 60
-  isStaticRoomCamera: 1
-  enterTransition: 0
-  enterDuration: 1
-  returnToDefaultOnExit: 1
-  exitTransition: 0
-  exitDuration: 1
+  zoneCamera: {fileID: 919338724}
+  useFadeTransition: 0
+  fadeColor: {r: 0, g: 0, b: 0, a: 1}
+  fadeHalfDuration: 0.5
 --- !u!4 &1179119215
 Transform:
   m_ObjectHideFlags: 0
@@ -1780,21 +1797,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41df7a0ddc71a60488db4137ed2d190a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraZone
-  zoneSetup:
-    targetTransform: {fileID: 1595711279}
-    transitionType: 1
-    fadeStyle: 0
-    duration: 1
-    easeType: 4
-    fadeColor: {r: 0, g: 0, b: 0, a: 1}
-    modifyFOV: 0
-    targetFOV: 60
-  isStaticRoomCamera: 1
-  enterTransition: 2
-  enterDuration: 1
-  returnToDefaultOnExit: 1
-  exitTransition: 2
-  exitDuration: 1
+  zoneCamera: {fileID: 1595711280}
+  useFadeTransition: 0
+  fadeColor: {r: 0, g: 0, b: 0, a: 1}
+  fadeHalfDuration: 0.1
 --- !u!4 &1210992633
 Transform:
   m_ObjectHideFlags: 0
@@ -1931,6 +1937,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1595711279}
+  - component: {fileID: 1595711280}
   m_Layer: 0
   m_Name: CAMERA 4
   m_TagString: Untagged
@@ -1953,6 +1960,49 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1210992633}
   m_LocalEulerAnglesHint: {x: 53.847, y: 26.007, z: 0}
+--- !u!114 &1595711280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1595711278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCamera
+  Priority:
+    Enabled: 0
+    m_Value: 0
+  OutputChannel: 1
+  StandbyUpdate: 2
+  m_StreamingVersion: 20241001
+  m_LegacyPriority: 0
+  Target:
+    TrackingTarget: {fileID: 0}
+    LookAtTarget: {fileID: 0}
+    CustomLookAtTarget: 0
+  Lens:
+    FieldOfView: 40
+    OrthographicSize: 10
+    NearClipPlane: 0.1
+    FarClipPlane: 5000
+    Dutch: 0
+    ModeOverride: 0
+    PhysicalProperties:
+      GateFit: 2
+      SensorSize: {x: 21.946, y: 16.002}
+      LensShift: {x: 0, y: 0}
+      FocusDistance: 10
+      Iso: 200
+      ShutterSpeed: 0.005
+      Aperture: 16
+      BladeCount: 5
+      Curvature: {x: 2, y: 11}
+      BarrelClipping: 0.25
+      Anamorphism: 0
+  BlendHint: 0
 --- !u!1001 &1611558135
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2261,6 +2311,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2026924207}
+  - component: {fileID: 2026924208}
   m_Layer: 0
   m_Name: CAMERA 3
   m_TagString: Untagged
@@ -2283,6 +2334,49 @@ Transform:
   m_Children: []
   m_Father: {fileID: 157805801}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2026924208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2026924206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9dfa5b682dcd46bda6128250e975f58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineCamera
+  Priority:
+    Enabled: 0
+    m_Value: 0
+  OutputChannel: 1
+  StandbyUpdate: 2
+  m_StreamingVersion: 20241001
+  m_LegacyPriority: 0
+  Target:
+    TrackingTarget: {fileID: 0}
+    LookAtTarget: {fileID: 0}
+    CustomLookAtTarget: 0
+  Lens:
+    FieldOfView: 40
+    OrthographicSize: 10
+    NearClipPlane: 0.1
+    FarClipPlane: 5000
+    Dutch: 0
+    ModeOverride: 0
+    PhysicalProperties:
+      GateFit: 2
+      SensorSize: {x: 21.946, y: 16.002}
+      LensShift: {x: 0, y: 0}
+      FocusDistance: 10
+      Iso: 200
+      ShutterSpeed: 0.005
+      Aperture: 16
+      BladeCount: 5
+      Curvature: {x: 2, y: 11}
+      BarrelClipping: 0.25
+      Anamorphism: 0
+  BlendHint: 0
 --- !u!1 &2032505659
 GameObject:
   m_ObjectHideFlags: 0

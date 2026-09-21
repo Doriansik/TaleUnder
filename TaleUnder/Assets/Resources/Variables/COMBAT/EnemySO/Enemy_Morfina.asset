@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Enemy_Morfina
   m_EditorClassIdentifier: Assembly-CSharp::EnemySO
   enemyName: Morfina
-  enemyPrefab: {fileID: 4589645823684247924, guid: 04d4e169df69a6345841cd25261e7183, type: 3}
+  enemyPrefab: {fileID: 2064876700190148960, guid: 99f6ef9843632c540bf2b5d1b1eef109, type: 3}
   maxHP: 15
   hitsToBecomeFan: 3
   attackPatterns:
