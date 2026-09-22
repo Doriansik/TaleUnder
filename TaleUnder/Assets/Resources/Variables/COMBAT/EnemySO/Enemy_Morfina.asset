@@ -13,8 +13,12 @@ MonoBehaviour:
   m_Name: Enemy_Morfina
   m_EditorClassIdentifier: Assembly-CSharp::EnemySO
   enemyName: Morfina
-  enemyPrefab: {fileID: 2064876700190148960, guid: 99f6ef9843632c540bf2b5d1b1eef109, type: 3}
   maxHP: 15
-  hitsToBecomeFan: 3
-  attackPatterns:
-  - {fileID: 11400000, guid: e20ee1e0ee0bb6e448f6053e0560cb97, type: 2}
+  enemyPrefab: {fileID: 2064876700190148960, guid: 99f6ef9843632c540bf2b5d1b1eef109, type: 3}
+  defaultEmotion: 0
+  defaultPattern: {fileID: 11400000, guid: e20ee1e0ee0bb6e448f6053e0560cb97, type: 2}
+  baseXP: 1
+  baseStarBits: 10
+  baseEncoreStars: 0
+  lootItem: {fileID: 11400000, guid: f108482dece589044b41c9ecbf91efa5, type: 2}
+  dropChance: 0.306

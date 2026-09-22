@@ -13,8 +13,11 @@ MonoBehaviour:
   m_Name: Item_PP
   m_EditorClassIdentifier: Assembly-CSharp::ItemSO
   itemName: PP
+  description: N KUTAS N SIUREK
+  targetsAlly: 1
   effectType: 1
   effectValue: 5
+  appliesEmotion: 1
+  emotionToApply: 2
   useSFX: {fileID: 8300000, guid: 6ea797b477834c34f99bc52d36b4eba0, type: 3}
-  vfxPrefab: {fileID: 0}
-  emotionToApply: {fileID: 0}
+  vfxPrefab: {fileID: 880170550629029124, guid: fb50d486ee23e1b4aa1ef8bc4ffc2d17, type: 3}

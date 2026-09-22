@@ -1,6 +1,6 @@
 title: TestMorfina
 ---
-<<show_avatarMorfina NPC  Happy>>
+<<show_avatar NPC Morfina Happy>>
 Morfina: EOEOEOOEOEOEOEOOEOEOE
 
 <<show_avatar Player MC Neutral>>

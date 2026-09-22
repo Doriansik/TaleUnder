@@ -13,8 +13,12 @@ public class PlayerProfileSO : ScriptableObject
 {
     [Header("Progression")]
     public int currentLevel = 1;
-    public int currentXP = 0;
-    public int xpToNextLevel = 5;
+    public int currentFans = 0;
+    public int fansToNextLevel = 5;
+
+    [Header("Economy")]
+    public int starBits = 0;
+    public int encoreStars = 0;
 
     [Header("Base Stats")]
     public int maxHP = 20;
@@ -66,6 +70,34 @@ public class PlayerProfileSO : ScriptableObject
                 }
                 return;
             }
+        }
+    }
+
+    public void AddItem(ItemSO newItem)
+    {
+        foreach (var slot in inventory)
+        {
+            if (slot.item == newItem)
+            {
+                slot.amount++;
+                return;
+            }
+        }
+        inventory.Add(new InventorySlot { item = newItem, amount = 1 });
+    }
+
+    public void AddFans(int amount)
+    {
+        currentFans += amount;
+        while (currentFans >= fansToNextLevel)
+        {
+            currentFans -= fansToNextLevel;
+            currentLevel++;
+            maxHP += 10;
+            maxPP += 5;
+            currentHP = GetTotalMaxHP();
+            currentPP = maxPP;
+            fansToNextLevel = Mathf.RoundToInt(fansToNextLevel * 1.5f);
         }
     }
 }

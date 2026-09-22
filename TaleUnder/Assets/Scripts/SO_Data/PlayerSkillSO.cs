@@ -8,6 +8,12 @@ public class PlayerSkillSO : ScriptableObject
     [TextArea(2, 3)] public string description;
     public bool targetsAlly = false;
     
+    public CombatEffectType effectType;
+    public int effectValue;
+    
+    public bool appliesEmotion;
+    public EmotionType emotionToApply;
+
     public GameObject minigamePrefab;
     
     [Header("Visual & Audio Feedback")]

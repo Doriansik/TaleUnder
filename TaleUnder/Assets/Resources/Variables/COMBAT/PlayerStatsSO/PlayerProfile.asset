@@ -12,34 +12,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a750c83d06ea3c14893720d499ddf985, type: 3}
   m_Name: PlayerProfile
   m_EditorClassIdentifier: Assembly-CSharp::PlayerProfileSO
-  currentLevel: 1
-  currentXP: 0
-  xpToNextLevel: 5
-  maxHP: 20
-  currentHP: 20
-  maxPP: 10
-  currentPP: 10
+  currentLevel: 2
+  currentFans: 1
+  fansToNextLevel: 2
+  starBits: 20
+  encoreStars: 1
+  maxHP: 30
+  currentHP: 32
+  maxPP: 15
+  currentPP: 15
   baseAttack: 5
   currentEmotion: 0
-  equippedMicrophone: {fileID: 0}
-  equippedOutfit: {fileID: 0}
-  equippedGadget: {fileID: 0}
-  basicAttack: {fileID: 0}
+  equippedMicrophone: {fileID: 11400000, guid: 5e0aa76cb702c844f8df8b0ba62f377f, type: 2}
+  equippedOutfit: {fileID: 11400000, guid: 943a2f7214a44a345a0b66f5c3a4eb5b, type: 2}
+  equippedGadget: {fileID: 11400000, guid: e55b4456755102843b7abbc052c92ad0, type: 2}
+  basicAttack: {fileID: 11400000, guid: b1cd49b9700647a4eb168d4d0551d17b, type: 2}
   equippedSkills:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: da56b6b1f6f88fd4c826ecb83101a71f, type: 2}
+  - {fileID: 11400000, guid: da56b6b1f6f88fd4c826ecb83101a71f, type: 2}
+  - {fileID: 11400000, guid: da56b6b1f6f88fd4c826ecb83101a71f, type: 2}
   inventory:
-  - item: {fileID: 0}
+  - item: {fileID: 11400000, guid: af66586b32a97ea47a57e4b34cd73aa1, type: 2}
     amount: 0
-  - item: {fileID: 0}
-    amount: 0
-  - item: {fileID: 0}
+  - item: {fileID: 11400000, guid: f108482dece589044b41c9ecbf91efa5, type: 2}
+    amount: 2
+  - item: {fileID: 11400000, guid: 6e964fc606044eb4da151afcc483277d, type: 2}
     amount: 0
   - item: {fileID: 0}
     amount: 0

@@ -1283,6 +1283,7 @@ GameObject:
   - component: {fileID: 4398580719859239288}
   - component: {fileID: 2344771170681549691}
   - component: {fileID: 2597732680623485804}
+  - component: {fileID: 8952375498573693413}
   m_Layer: 0
   m_Name: Dialogue System
   m_TagString: Untagged
@@ -1327,7 +1328,7 @@ MonoBehaviour:
   dialoguePresenters:
   - {fileID: 8851020355425224485}
   - {fileID: 4365684716304151233}
-  - {fileID: 0}
+  - {fileID: 7374615171949893440}
   verboseLogging: 0
   autoStart: 0
   startNode: Start
@@ -1386,6 +1387,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showDebug: 0
   debugTextView: {fileID: 0}
+--- !u!114 &8952375498573693413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3967937644414024454}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fab1f72331f08a4fba9c312bb8d580f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::YarnPatch
+  targetRunner: {fileID: 2344771170681549691}
+  targetBridge: {fileID: 1889600395415012439}
 --- !u!1 &4333598593978828193
 GameObject:
   m_ObjectHideFlags: 0

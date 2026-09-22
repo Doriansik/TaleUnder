@@ -16,5 +16,5 @@ MonoBehaviour:
   enemiesInEncounter:
   - {fileID: 11400000, guid: a1b06d195726a0540bd8020463b51b1b, type: 2}
   - {fileID: 11400000, guid: a1b06d195726a0540bd8020463b51b1b, type: 2}
-  combatEnvironmentPrefab: {fileID: 0}
+  combatEnvironmentPrefab: {fileID: 4872482592582546870, guid: dda8e8776dc8bbb4394e5e2e9b754073, type: 3}
   battleMusic: {fileID: 11400000, guid: 09d3c220eae204d44be689fdee1e6b2a, type: 2}

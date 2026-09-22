@@ -8,21 +8,24 @@ public class EnemyCombatUI : MonoBehaviour
     public CanvasGroup uiCanvasGroup;
     public Slider hpSlider;
     public TMP_Text hpText; 
+    public TMP_Text emotionText; 
 
     private int maxHP;
     private int currentHP;
+    private EmotionType currentEmotion;
 
-    public void Initialize(int startingHP)
+    public void Initialize(int startingHP, EmotionType startEmotion = EmotionType.Neutral)
     {
         maxHP = startingHP;
         currentHP = startingHP;
+        currentEmotion = startEmotion;
 
         if (hpSlider != null) 
         { 
             hpSlider.maxValue = maxHP; 
             hpSlider.value = currentHP; 
         }
-        UpdateText();
+        UpdateUIElements();
 
         if (uiCanvasGroup != null)
         {
@@ -55,15 +58,19 @@ public class EnemyCombatUI : MonoBehaviour
         {
             Tween.UISliderValue(hpSlider, currentHP, 0.3f, Ease.OutBounce);
         }
-        UpdateText();
+        UpdateUIElements();
     }
 
-    private void UpdateText()
+    public void SetEmotion(EmotionType newEmotion)
     {
-        if (hpText != null) 
-        {
-            hpText.text = $"{currentHP}/{maxHP}";
-        }
+        currentEmotion = newEmotion;
+        UpdateUIElements();
+    }
+
+    private void UpdateUIElements()
+    {
+        if (hpText != null) hpText.text = $"{currentHP}/{maxHP}";
+        if (emotionText != null) emotionText.text = currentEmotion.ToString().ToUpper();
     }
 
     public int GetCurrentHP()

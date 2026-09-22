@@ -43,6 +43,8 @@ public class DialogueUIBridge : MonoBehaviour
 
     public void Start()
     {
+        PrimeTweenConfig.warnEndValueEqualsCurrent = false;
+        
         DialogueRunner dialogueRunner = FindAnyObjectByType<DialogueRunner>();
         if (dialogueRunner != null)
         {

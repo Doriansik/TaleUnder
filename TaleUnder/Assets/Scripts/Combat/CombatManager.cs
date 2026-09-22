@@ -22,7 +22,10 @@ public class CombatManager : MonoBehaviour
     public TMP_Text playerHPText;
     public Slider playerPPSlider;
     public TMP_Text playerPPText;
-    public TMP_Text descriptionText; 
+    public TMP_Text playerEmotionText;
+
+    [Header("UI Popups")]
+    public CanvasGroup notEnoughPPPopup;
 
     [Header("Arena Setup")]
     public Transform environmentHolder;
@@ -49,10 +52,14 @@ public class CombatManager : MonoBehaviour
     [Header("Skill Menu")]
     public CanvasGroup skillMenuCanvasGroup;
     public Image[] skillButtons = new Image[0];
+    public TMP_Text[] skillNameTexts = new TMP_Text[0];
+    public TMP_Text skillDescriptionText;
     
     [Header("Item Menu")]
     public CanvasGroup itemMenuCanvasGroup;
     public Image[] itemButtons = new Image[0];
+    public TMP_Text[] itemNameTexts = new TMP_Text[0];
+    public TMP_Text itemDescriptionText;
 
     [Header("Game Over / Victory")]
     public GameObject gameOverPanel;
@@ -61,6 +68,8 @@ public class CombatManager : MonoBehaviour
     public GameObject victoryPanel;
     public CanvasGroup victoryCanvasGroup;
     public Image[] victoryButtons = new Image[0];
+    public TMP_Text victoryLootText;
+    public Slider victoryXPSlider;
 
     [Header("Combat Flow")]
     public GameObject normalMetronomeContainer;
@@ -71,8 +80,7 @@ public class CombatManager : MonoBehaviour
     public CombatGridPlayer gridPlayer;
     public CombatGridVisuals gridVisuals;
 
-    [Header("Testing & Audio")]
-    public EnemyActionPatternSO testPattern;
+    [Header("Audio")]
     public AudioSource sfxSource;
     public AudioClip damageSFX;
     public AudioClip warmupSFX;
@@ -94,6 +102,7 @@ public class CombatManager : MonoBehaviour
     private bool isDefending = false;
     private bool isPatternActive = false;
     private int currentPatternBeat = 0;
+    private EnemyActionPatternSO currentEnemyPattern;
     
     private bool isWaitingForAttackSync = false;
     private int warmupCounter = 0;
@@ -101,11 +110,17 @@ public class CombatManager : MonoBehaviour
     
     private List<GameObject> activeEnemies = new List<GameObject>();
     private List<EnemyCombatUI> enemyUIList = new List<EnemyCombatUI>();
+    private List<EnemySO> activeEnemyData = new List<EnemySO>();
     
     private bool isRunningAway = false;
     private bool tookDamageDuringRun = false;
     private Transform playerRootTransform;
     private Transform playerVisualTransform;
+
+    private int accumulatedFans = 0;
+    private int accumulatedStarBits = 0;
+    private int accumulatedEncoreStars = 0;
+    private List<ItemSO> accumulatedItems = new List<ItemSO>();
 
     public void Awake()
     {
@@ -129,6 +144,12 @@ public class CombatManager : MonoBehaviour
         {
             RhythmManager.Instance.PlayTrack(currentEncounter.battleMusic);
             RhythmManager.Instance.OnBeat += HandleBeat;
+        }
+
+        if (notEnoughPPPopup != null)
+        {
+            notEnoughPPPopup.alpha = 0f;
+            notEnoughPPPopup.gameObject.SetActive(false);
         }
 
         EnterActionMenu();
@@ -169,12 +190,18 @@ public class CombatManager : MonoBehaviour
         }
         if (playerHPText != null) playerHPText.text = $"{playerProfile.currentHP}/{playerProfile.GetTotalMaxHP()}";
         if (playerPPText != null) playerPPText.text = $"{playerProfile.currentPP}/{playerProfile.maxPP}";
+        if (playerEmotionText != null) playerEmotionText.text = playerProfile.currentEmotion.ToString().ToUpper();
     }
 
     private void InitializeEncounter()
     {
         activeEnemies.Clear();
         enemyUIList.Clear();
+        activeEnemyData.Clear();
+        accumulatedFans = 0;
+        accumulatedStarBits = 0;
+        accumulatedEncoreStars = 0;
+        accumulatedItems.Clear();
 
         GameObject playerRoot = GameObject.FindGameObjectWithTag("Player");
         if (playerRoot != null && playerSpawnPoint != null)
@@ -188,8 +215,17 @@ public class CombatManager : MonoBehaviour
 
         UpdatePlayerStatsUI();
 
+        if (environmentHolder != null)
+        {
+            foreach (Transform child in environmentHolder)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
         if (currentEncounter == null) return;
-        if (currentEncounter.combatEnvironmentPrefab != null) 
+        
+        if (currentEncounter.combatEnvironmentPrefab != null && environmentHolder != null) 
         {
             Instantiate(currentEncounter.combatEnvironmentPrefab, environmentHolder.position, environmentHolder.rotation, environmentHolder);
         }
@@ -204,10 +240,12 @@ public class CombatManager : MonoBehaviour
                 {
                     GameObject spawnedEnemy = Instantiate(enemyData.enemyPrefab, enemySpawnPoints[i].position, enemySpawnPoints[i].rotation);
                     activeEnemies.Add(spawnedEnemy);
+                    activeEnemyData.Add(enemyData);
+
                     EnemyCombatUI uiComp = spawnedEnemy.GetComponentInChildren<EnemyCombatUI>(true);
                     if (uiComp != null) 
                     { 
-                        uiComp.Initialize(enemyData.maxHP); 
+                        uiComp.Initialize(enemyData.maxHP, enemyData.defaultEmotion); 
                         enemyUIList.Add(uiComp); 
                     }
                 }
@@ -242,6 +280,18 @@ public class CombatManager : MonoBehaviour
         Tween.Alpha(group, 0f, 0.2f).OnComplete(() => group.gameObject.SetActive(false));
     }
 
+    private void TriggerNotEnoughPP()
+    {
+        if (notEnoughPPPopup != null)
+        {
+            notEnoughPPPopup.gameObject.SetActive(true);
+            notEnoughPPPopup.alpha = 1f;
+            Tween.PunchScale(notEnoughPPPopup.transform, new Vector3(0.2f, 0.2f, 0f), 0.3f);
+            Tween.Alpha(notEnoughPPPopup, 0f, 1f, startDelay: 0.5f).OnComplete(() => notEnoughPPPopup.gameObject.SetActive(false));
+            PlaySFX(damageSFX); 
+        }
+    }
+
     public void EnterActionMenu()
     {
         currentState = CombatState.ActionMenu;
@@ -252,7 +302,8 @@ public class CombatManager : MonoBehaviour
         if (itemMenuCanvasGroup != null && itemMenuCanvasGroup.gameObject.activeSelf) HideUIGroup(itemMenuCanvasGroup);
         if (actionMenuCanvasGroup != null) ShowUIGroup(actionMenuCanvasGroup);
         if (normalMetronomeContainer != null) normalMetronomeContainer.SetActive(true);
-        if (descriptionText != null) descriptionText.text = "";
+        if (skillDescriptionText != null) skillDescriptionText.text = "";
+        if (itemDescriptionText != null) itemDescriptionText.text = "";
 
         if (combatDimmer != null) Tween.Alpha(combatDimmer, 0f, 0.3f).OnComplete(() => combatDimmer.gameObject.SetActive(false));
 
@@ -365,7 +416,7 @@ public class CombatManager : MonoBehaviour
             }
             else 
             {
-                PlaySFX(damageSFX);
+                TriggerNotEnoughPP();
             }
         }
         else if (Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.Escape)) 
@@ -381,12 +432,26 @@ public class CombatManager : MonoBehaviour
             if (skillButtons[i] != null) 
             {
                 skillButtons[i].color = (i == selectedSkillIndex) ? selectedActionColor : defaultActionColor;
+                
+                if (i < skillNameTexts.Length && skillNameTexts[i] != null)
+                {
+                    if (i < playerProfile.equippedSkills.Count)
+                    {
+                        skillNameTexts[i].text = playerProfile.equippedSkills[i].skillName;
+                        skillButtons[i].gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        skillButtons[i].gameObject.SetActive(false);
+                    }
+                }
             }
         }
-        if (descriptionText != null && playerProfile.equippedSkills.Count > selectedSkillIndex)
+
+        if (skillDescriptionText != null && playerProfile.equippedSkills.Count > selectedSkillIndex)
         {
             var skill = playerProfile.equippedSkills[selectedSkillIndex];
-            descriptionText.text = $"<b>{skill.skillName}</b>\nCost: {skill.ppCost} PP\n{skill.description}";
+            skillDescriptionText.text = $"<b>{skill.skillName}</b>\nCost: {skill.ppCost} PP\n{skill.description}";
         }
     }
 
@@ -440,12 +505,26 @@ public class CombatManager : MonoBehaviour
             if (itemButtons[i] != null) 
             {
                 itemButtons[i].color = (i == selectedItemIndex) ? selectedActionColor : defaultActionColor;
+
+                if (i < itemNameTexts.Length && itemNameTexts[i] != null)
+                {
+                    if (i < playerProfile.inventory.Count)
+                    {
+                        itemNameTexts[i].text = playerProfile.inventory[i].item.itemName;
+                        itemButtons[i].gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        itemButtons[i].gameObject.SetActive(false);
+                    }
+                }
             }
         }
-        if (descriptionText != null && playerProfile.inventory.Count > selectedItemIndex)
+
+        if (itemDescriptionText != null && playerProfile.inventory.Count > selectedItemIndex)
         {
             var slot = playerProfile.inventory[selectedItemIndex];
-            descriptionText.text = $"<b>{slot.item.itemName}</b> (x{slot.amount})\n{slot.item.description}";
+            itemDescriptionText.text = $"<b>{slot.item.itemName}</b> (x{slot.amount})\n{slot.item.description}";
         }
     }
 
@@ -456,7 +535,6 @@ public class CombatManager : MonoBehaviour
         
         if (skillMenuCanvasGroup != null) HideUIGroup(skillMenuCanvasGroup);
         if (itemMenuCanvasGroup != null) HideUIGroup(itemMenuCanvasGroup);
-        if (descriptionText != null) descriptionText.text = isTargetingAlly ? "Select Ally" : "Select Target";
         
         selectedTargetIndex = isTargetingAlly ? 0 : GetNextAliveEnemyIndex(0);
         
@@ -558,42 +636,56 @@ public class CombatManager : MonoBehaviour
         }
     }
 
+    private void ProcessEnemyDefeat(int index)
+    {
+        if (activeEnemyData.Count > index && activeEnemyData[index] != null)
+        {
+            EnemySO data = activeEnemyData[index];
+            accumulatedFans += data.baseXP;
+            accumulatedStarBits += data.baseStarBits;
+            accumulatedEncoreStars += data.baseEncoreStars;
+
+            if (data.lootItem != null && Random.value <= data.dropChance)
+            {
+                accumulatedItems.Add(data.lootItem);
+            }
+        }
+    }
+
     private void ExecuteItemEffect(Transform target)
     {
         if (activeItemSO == null || playerProfile == null) return;
         if (activeItemSO.useSFX != null) PlaySFX(activeItemSO.useSFX);
 
-        if (activeItemSO.effectType == ItemEffectType.HealHP)
+        if (activeItemSO.appliesEmotion)
+        {
+            if (isTargetingAlly) playerProfile.currentEmotion = activeItemSO.emotionToApply;
+            else if (target != null && selectedTargetIndex >= 0) enemyUIList[selectedTargetIndex].SetEmotion(activeItemSO.emotionToApply);
+        }
+
+        if (activeItemSO.effectType == CombatEffectType.HealHP)
         {
             playerProfile.currentHP = Mathf.Clamp(playerProfile.currentHP + activeItemSO.effectValue, 0, playerProfile.GetTotalMaxHP());
-            if (activeItemSO.vfxPrefab != null && target != null) 
-            {
-                Instantiate(activeItemSO.vfxPrefab, target.position, Quaternion.identity);
-            }
+            if (activeItemSO.vfxPrefab != null && target != null) Instantiate(activeItemSO.vfxPrefab, target.position, Quaternion.identity);
             Tween.Delay(1f).OnComplete(StartDefensePhase);
         }
-        else if (activeItemSO.effectType == ItemEffectType.HealPP)
+        else if (activeItemSO.effectType == CombatEffectType.HealPP)
         {
             playerProfile.currentPP = Mathf.Clamp(playerProfile.currentPP + activeItemSO.effectValue, 0, playerProfile.maxPP);
-            if (activeItemSO.vfxPrefab != null && target != null) 
-            {
-                Instantiate(activeItemSO.vfxPrefab, target.position, Quaternion.identity);
-            }
+            if (activeItemSO.vfxPrefab != null && target != null) Instantiate(activeItemSO.vfxPrefab, target.position, Quaternion.identity);
             Tween.Delay(1f).OnComplete(StartDefensePhase);
         }
-        else if (activeItemSO.effectType == ItemEffectType.DamageEnemy && target != null && selectedTargetIndex >= 0)
+        else if (activeItemSO.effectType == CombatEffectType.Damage && target != null && selectedTargetIndex >= 0)
         {
             EnemyCombatUI targetUI = enemyUIList[selectedTargetIndex];
             int newHP = targetUI.GetCurrentHP() - activeItemSO.effectValue;
             targetUI.UpdateHP(newHP);
-            if (activeItemSO.vfxPrefab != null) 
-            {
-                Instantiate(activeItemSO.vfxPrefab, target.position, Quaternion.identity);
-            }
+            if (activeItemSO.vfxPrefab != null) Instantiate(activeItemSO.vfxPrefab, target.position, Quaternion.identity);
             Tween.ShakeLocalPosition(target, strength: new Vector3(0.5f, 0f, 0f), duration: 0.2f);
 
             if (newHP <= 0)
             {
+                ProcessEnemyDefeat(selectedTargetIndex);
                 Tween.Scale(target, Vector3.zero, 0.5f).OnComplete(() => activeEnemies[selectedTargetIndex].SetActive(false));
                 Tween.Delay(1f).OnComplete(() => 
                 { 
@@ -695,10 +787,10 @@ public class CombatManager : MonoBehaviour
         else if (currentState == CombatState.DefenseGrid && isDefending)
         {
             if (!isPatternActive && measureBeat == 1) isPatternActive = true;
-            if (isPatternActive)
+            if (isPatternActive && currentEnemyPattern != null)
             {
                 currentPatternBeat++;
-                if (testPattern != null) testPattern.ExecuteBeat(currentPatternBeat, this);
+                currentEnemyPattern.ExecuteBeat(currentPatternBeat, this);
             }
         }
     }
@@ -714,25 +806,58 @@ public class CombatManager : MonoBehaviour
             }
         }
 
-        if (damageMultiplier > 0f && playerProfile != null && !isTargetingAlly)
+        if (damageMultiplier >= 1f)
         {
-            int finalDamage = Mathf.RoundToInt(playerProfile.GetTotalAttack() * damageMultiplier);
-            if (selectedTargetIndex >= 0 && selectedTargetIndex < enemyUIList.Count)
-            {
-                EnemyCombatUI targetUI = enemyUIList[selectedTargetIndex];
-                int newHP = targetUI.GetCurrentHP() - finalDamage;
-                targetUI.UpdateHP(newHP);
-                Tween.ShakeLocalPosition(activeEnemies[selectedTargetIndex].transform, strength: new Vector3(0.5f, 0f, 0f), duration: 0.2f);
-                PlaySFX(damageSFX);
+            accumulatedEncoreStars += 1;
+        }
 
-                if (newHP <= 0) 
+        if (damageMultiplier > 0f && playerProfile != null)
+        {
+            if (activeSkillSO != null && activeSkillSO.appliesEmotion)
+            {
+                if (isTargetingAlly) playerProfile.currentEmotion = activeSkillSO.emotionToApply;
+                else if (selectedTargetIndex >= 0) enemyUIList[selectedTargetIndex].SetEmotion(activeSkillSO.emotionToApply);
+            }
+
+            if (!isTargetingAlly)
+            {
+                if (activeSkillSO != null && activeSkillSO.effectType == CombatEffectType.Damage)
                 {
-                    Tween.Scale(activeEnemies[selectedTargetIndex].transform, Vector3.zero, 0.5f).OnComplete(() => activeEnemies[selectedTargetIndex].SetActive(false));
+                    int finalDamage = Mathf.RoundToInt((playerProfile.GetTotalAttack() + activeSkillSO.effectValue) * damageMultiplier);
+                    if (selectedTargetIndex >= 0 && selectedTargetIndex < enemyUIList.Count)
+                    {
+                        EnemyCombatUI targetUI = enemyUIList[selectedTargetIndex];
+                        int newHP = targetUI.GetCurrentHP() - finalDamage;
+                        targetUI.UpdateHP(newHP);
+                        Tween.ShakeLocalPosition(activeEnemies[selectedTargetIndex].transform, strength: new Vector3(0.5f, 0f, 0f), duration: 0.2f);
+                        PlaySFX(damageSFX);
+
+                        if (newHP <= 0) 
+                        {
+                            ProcessEnemyDefeat(selectedTargetIndex);
+                            Tween.Scale(activeEnemies[selectedTargetIndex].transform, Vector3.zero, 0.5f).OnComplete(() => activeEnemies[selectedTargetIndex].SetActive(false));
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (activeSkillSO != null && activeSkillSO.effectType == CombatEffectType.HealHP)
+                {
+                    int finalHeal = Mathf.RoundToInt(activeSkillSO.effectValue * damageMultiplier);
+                    playerProfile.currentHP = Mathf.Clamp(playerProfile.currentHP + finalHeal, 0, playerProfile.GetTotalMaxHP());
+                }
+                else if (activeSkillSO != null && activeSkillSO.effectType == CombatEffectType.HealPP)
+                {
+                    int finalHeal = Mathf.RoundToInt(activeSkillSO.effectValue * damageMultiplier);
+                    playerProfile.currentPP = Mathf.Clamp(playerProfile.currentPP + finalHeal, 0, playerProfile.maxPP);
                 }
             }
         }
         
+        UpdatePlayerStatsUI();
         ClearHighlights();
+        
         if (GetNextAliveEnemyIndex(0) == -1) TriggerVictory();
         else StartDefensePhase();
     }
@@ -743,6 +868,17 @@ public class CombatManager : MonoBehaviour
         isDefending = true;
         isPatternActive = false;
         currentPatternBeat = 0;
+        currentEnemyPattern = null;
+        tookDamageDuringRun = false;
+
+        for (int i = 0; i < activeEnemies.Count; i++)
+        {
+            if (activeEnemies[i] != null && activeEnemies[i].activeSelf && activeEnemyData[i] != null && activeEnemyData[i].defaultPattern != null)
+            {
+                currentEnemyPattern = activeEnemyData[i].defaultPattern;
+                break;
+            }
+        }
 
         SwitchCamera(vcamDefense != null ? vcamDefense : vcamCombatMain);
 
@@ -768,6 +904,12 @@ public class CombatManager : MonoBehaviour
     {
         isDefending = false;
         isPatternActive = false;
+
+        if (!tookDamageDuringRun && playerProfile != null)
+        {
+            playerProfile.currentPP = Mathf.Clamp(playerProfile.currentPP + 5, 0, playerProfile.maxPP);
+            UpdatePlayerStatsUI();
+        }
 
         if (isRunningAway)
         {
@@ -834,6 +976,32 @@ public class CombatManager : MonoBehaviour
         currentState = CombatState.Victory;
         isDefending = false;
         victorySelectedIndex = 0;
+
+        if (playerProfile != null)
+        {
+            playerProfile.starBits += accumulatedStarBits;
+            playerProfile.encoreStars += accumulatedEncoreStars;
+            
+            foreach (ItemSO item in accumulatedItems)
+            {
+                playerProfile.AddItem(item);
+            }
+
+            if (victoryLootText != null)
+            {
+                string lootText = $"FANS: +{accumulatedFans}\nSTARBITS: +{accumulatedStarBits}\nENCORE STARS: +{accumulatedEncoreStars}\n";
+                foreach (ItemSO item in accumulatedItems) lootText += $"+ {item.itemName}\n";
+                victoryLootText.text = lootText;
+            }
+
+            if (victoryXPSlider != null)
+            {
+                victoryXPSlider.maxValue = playerProfile.fansToNextLevel;
+                victoryXPSlider.value = playerProfile.currentFans;
+            }
+
+            playerProfile.AddFans(accumulatedFans);
+        }
         
         Tween.Custom(1f, 0f, 2f, onValueChange: v => AudioListener.volume = v);
         

@@ -1,5 +1,6 @@
 public enum EmotionType 
 { 
+    None,
     Neutral, 
     Joy, 
     Sadness, 
