@@ -15,8 +15,10 @@ public class CombatManager : MonoBehaviour
     public CombatState currentState = CombatState.ActionMenu;
     public EncounterSO currentEncounter;
 
-    [Header("Stats & UI")]
-    public CombatStatsSO playerStats;
+    [Header("Player Data")]
+    public PlayerProfileSO playerProfile;
+
+    [Header("UI Status")]
     public Slider playerHPSlider;
     public Slider playerPPSlider;
 
@@ -37,17 +39,14 @@ public class CombatManager : MonoBehaviour
     public Image[] actionButtons;
     public Color selectedActionColor = Color.yellow;
     public Color defaultActionColor = Color.white;
-    public PlayerSkillSO basicAttackSkill;
 
     [Header("Skill Menu")]
     public RectTransform skillMenuContainer;
     public Image[] skillButtons;
-    public PlayerSkillSO[] equippedSkills;
     
     [Header("Item Menu")]
     public RectTransform itemMenuContainer;
     public Image[] itemButtons;
-    public ItemSO[] inventory;
 
     [Header("Game Over / Victory")]
     public GameObject gameOverPanel;
@@ -163,10 +162,10 @@ public class CombatManager : MonoBehaviour
             playerRootTransform.rotation = playerSpawnPoint.rotation;
         }
 
-        if (playerStats != null)
+        if (playerProfile != null)
         {
-            if (playerHPSlider != null) { playerHPSlider.maxValue = playerStats.maxHP; playerHPSlider.value = playerStats.currentHP; }
-            if (playerPPSlider != null) { playerPPSlider.maxValue = playerStats.maxPP; playerPPSlider.value = playerStats.currentPP; }
+            if (playerHPSlider != null) { playerHPSlider.maxValue = playerProfile.GetTotalMaxHP(); playerHPSlider.value = playerProfile.currentHP; }
+            if (playerPPSlider != null) { playerPPSlider.maxValue = playerProfile.maxPP; playerPPSlider.value = playerProfile.currentPP; }
         }
 
         if (currentEncounter == null) return;
@@ -250,7 +249,7 @@ public class CombatManager : MonoBehaviour
         switch (actionIndex)
         {
             case 0:
-                activeSkillSO = basicAttackSkill;
+                if (playerProfile != null) activeSkillSO = playerProfile.basicAttack;
                 StartTargetSelection(); 
                 break;
             case 1:
@@ -272,7 +271,7 @@ public class CombatManager : MonoBehaviour
 
     private void StartSkillSelection()
     {
-        if (equippedSkills == null || equippedSkills.Length == 0) return;
+        if (playerProfile == null || playerProfile.equippedSkills == null || playerProfile.equippedSkills.Count == 0) return;
 
         currentState = CombatState.SkillSelection;
         selectedSkillIndex = 0;
@@ -283,7 +282,7 @@ public class CombatManager : MonoBehaviour
 
     private void HandleSkillSelectionInput()
     {
-        int maxIndex = equippedSkills.Length - 1;
+        int maxIndex = playerProfile.equippedSkills.Count - 1;
 
         if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
         {
@@ -298,8 +297,8 @@ public class CombatManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.Return))
         {
-            PlayerSkillSO chosenSkill = equippedSkills[selectedSkillIndex];
-            if (playerStats.currentPP >= chosenSkill.ppCost)
+            PlayerSkillSO chosenSkill = playerProfile.equippedSkills[selectedSkillIndex];
+            if (playerProfile.currentPP >= chosenSkill.ppCost)
             {
                 activeSkillSO = chosenSkill;
                 StartTargetSelection();
@@ -319,7 +318,7 @@ public class CombatManager : MonoBehaviour
 
     private void StartItemSelection()
     {
-        if (inventory == null || inventory.Length == 0) return;
+        if (playerProfile == null || playerProfile.inventory == null || playerProfile.inventory.Count == 0) return;
 
         currentState = CombatState.ItemSelection;
         selectedItemIndex = 0;
@@ -330,7 +329,7 @@ public class CombatManager : MonoBehaviour
 
     private void HandleItemSelectionInput()
     {
-        int maxIndex = inventory.Length - 1;
+        int maxIndex = playerProfile.inventory.Count - 1;
 
         if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetKeyDown(KeyCode.S))
         {
@@ -345,7 +344,7 @@ public class CombatManager : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.Return))
         {
-            ItemSO chosenItem = inventory[selectedItemIndex];
+            ItemSO chosenItem = playerProfile.inventory[selectedItemIndex].item;
             if (chosenItem == null) return;
             
             activeItemSO = chosenItem;
@@ -372,22 +371,22 @@ public class CombatManager : MonoBehaviour
 
     private void ExecuteItemEffect(Transform enemyTarget)
     {
-        if (activeItemSO == null) return;
+        if (activeItemSO == null || playerProfile == null) return;
 
         if (activeItemSO.useSFX != null) PlaySFX(activeItemSO.useSFX);
 
         switch (activeItemSO.effectType)
         {
             case ItemEffectType.HealHP:
-                playerStats.currentHP = Mathf.Clamp(playerStats.currentHP + activeItemSO.effectValue, 0, playerStats.maxHP);
-                if (playerHPSlider != null) Tween.UISliderValue(playerHPSlider, playerStats.currentHP, 0.3f, Ease.OutBounce);
+                playerProfile.currentHP = Mathf.Clamp(playerProfile.currentHP + activeItemSO.effectValue, 0, playerProfile.GetTotalMaxHP());
+                if (playerHPSlider != null) Tween.UISliderValue(playerHPSlider, playerProfile.currentHP, 0.3f, Ease.OutBounce);
                 if (activeItemSO.vfxPrefab != null && playerRootTransform != null) Instantiate(activeItemSO.vfxPrefab, playerRootTransform.position, Quaternion.identity);
                 Tween.Delay(1f).OnComplete(StartDefensePhase);
                 break;
 
             case ItemEffectType.HealPP:
-                playerStats.currentPP = Mathf.Clamp(playerStats.currentPP + activeItemSO.effectValue, 0, playerStats.maxPP);
-                if (playerPPSlider != null) Tween.UISliderValue(playerPPSlider, playerStats.currentPP, 0.3f, Ease.OutBounce);
+                playerProfile.currentPP = Mathf.Clamp(playerProfile.currentPP + activeItemSO.effectValue, 0, playerProfile.maxPP);
+                if (playerPPSlider != null) Tween.UISliderValue(playerPPSlider, playerProfile.currentPP, 0.3f, Ease.OutBounce);
                 if (activeItemSO.vfxPrefab != null && playerRootTransform != null) Instantiate(activeItemSO.vfxPrefab, playerRootTransform.position, Quaternion.identity);
                 Tween.Delay(1f).OnComplete(StartDefensePhase);
                 break;
@@ -414,6 +413,8 @@ public class CombatManager : MonoBehaviour
                 }
                 break;
         }
+
+        playerProfile.ConsumeItem(activeItemSO);
 
         if (itemMenuContainer != null) itemMenuContainer.gameObject.SetActive(false);
         ClearHighlights();
@@ -567,8 +568,8 @@ public class CombatManager : MonoBehaviour
             
             if (playerPPSlider != null)
             {
-                playerStats.currentPP = Mathf.Clamp(playerStats.currentPP - activeSkillSO.ppCost, 0, playerStats.maxPP);
-                Tween.UISliderValue(playerPPSlider, playerStats.currentPP, 0.3f, Ease.OutQuad);
+                playerProfile.currentPP = Mathf.Clamp(playerProfile.currentPP - activeSkillSO.ppCost, 0, playerProfile.maxPP);
+                Tween.UISliderValue(playerPPSlider, playerProfile.currentPP, 0.3f, Ease.OutQuad);
             }
         }
         else
@@ -622,9 +623,9 @@ public class CombatManager : MonoBehaviour
         IsolateForAttack(false);
         if (vcamAttackFocus != null) vcamAttackFocus.Priority = 0;
 
-        if (damageMultiplier > 0f)
+        if (damageMultiplier > 0f && playerProfile != null)
         {
-            int finalDamage = Mathf.RoundToInt(playerStats.baseAttack * damageMultiplier);
+            int finalDamage = Mathf.RoundToInt(playerProfile.GetTotalAttack() * damageMultiplier);
             
             if (selectedTargetIndex >= 0 && selectedTargetIndex < enemyUIList.Count)
             {
@@ -698,12 +699,15 @@ public class CombatManager : MonoBehaviour
             tookDamageDuringRun = true;
             PlaySFX(damageSFX);
             
-            playerStats.currentHP = Mathf.Clamp(playerStats.currentHP - damage, 0, playerStats.maxHP);
-            if (playerHPSlider != null) Tween.UISliderValue(playerHPSlider, playerStats.currentHP, 0.3f, Ease.OutBounce);
-            
-            Tween.ShakeLocalPosition(gridPlayer.transform, strength: new Vector3(25f, 25f, 0f), duration: 0.3f);
-            
-            if (playerStats.currentHP <= 0 && currentState != CombatState.Defeat) TriggerGameOver();
+            if (playerProfile != null)
+            {
+                playerProfile.currentHP = Mathf.Clamp(playerProfile.currentHP - damage, 0, playerProfile.GetTotalMaxHP());
+                if (playerHPSlider != null) Tween.UISliderValue(playerHPSlider, playerProfile.currentHP, 0.3f, Ease.OutBounce);
+                
+                Tween.ShakeLocalPosition(gridPlayer.transform, strength: new Vector3(25f, 25f, 0f), duration: 0.3f);
+                
+                if (playerProfile.currentHP <= 0 && currentState != CombatState.Defeat) TriggerGameOver();
+            }
         }
     }
 
@@ -824,7 +828,7 @@ public class CombatManager : MonoBehaviour
     public void RestartBattle()
     {
         PendingEncounter = currentEncounter;
-        if (playerStats != null) playerStats.currentHP = playerStats.maxHP;
+        if (playerProfile != null) playerProfile.currentHP = playerProfile.GetTotalMaxHP();
         if (RhythmManager.Instance != null) RhythmManager.Instance.StopTrack();
         
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);

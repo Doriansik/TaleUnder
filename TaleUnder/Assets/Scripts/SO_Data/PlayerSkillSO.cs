@@ -5,8 +5,9 @@ public class PlayerSkillSO : ScriptableObject
 {
     public string skillName;
     public int ppCost;
+    [TextArea(2, 3)] public string description;
+    public bool targetsAlly = false;
     
-    [Tooltip("Prefab minigry (np. SpotHit, OsuCatch, itp.), który zostanie zespawnowany na Canvasie")]
     public GameObject minigamePrefab;
     
     [Header("Visual & Audio Feedback")]

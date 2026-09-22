@@ -6,14 +6,15 @@ public enum ItemEffectType { HealHP, HealPP, DamageEnemy }
 public class ItemSO : ScriptableObject
 {
     public string itemName;
+    [TextArea(2, 3)] public string description;
     public ItemEffectType effectType;
     public int effectValue;
+    public bool targetsAlly = false;
     
     [Header("Visual & Audio")]
     public AudioClip useSFX;
     public GameObject vfxPrefab;
     
     [Header("Future Systems")]
-    [Tooltip("Miejsce na przyszły obiekt EmotionSO")]
     public ScriptableObject emotionToApply; 
 }

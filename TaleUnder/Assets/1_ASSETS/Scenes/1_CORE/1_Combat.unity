@@ -4322,7 +4322,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CombatManager
   currentState: 0
   currentEncounter: {fileID: 11400000, guid: 4a14f0e9074ef6148b8374c926638a6a, type: 2}
-  playerStats: {fileID: 11400000, guid: 5b7691fe96aa8044aae71a56c4ef2166, type: 2}
+  playerProfile: {fileID: 0}
   playerHPSlider: {fileID: 449667583}
   playerPPSlider: {fileID: 258754605}
   environmentHolder: {fileID: 839296810}
@@ -4345,25 +4345,16 @@ MonoBehaviour:
   - {fileID: 1161798935}
   selectedActionColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   defaultActionColor: {r: 1, g: 1, b: 1, a: 1}
-  basicAttackSkill: {fileID: 11400000, guid: b1cd49b9700647a4eb168d4d0551d17b, type: 2}
   skillMenuContainer: {fileID: 393592657}
   skillButtons:
   - {fileID: 2010011020}
   - {fileID: 576844793}
   - {fileID: 563890616}
-  equippedSkills:
-  - {fileID: 11400000, guid: da56b6b1f6f88fd4c826ecb83101a71f, type: 2}
-  - {fileID: 11400000, guid: da56b6b1f6f88fd4c826ecb83101a71f, type: 2}
-  - {fileID: 11400000, guid: b1cd49b9700647a4eb168d4d0551d17b, type: 2}
   itemMenuContainer: {fileID: 745156557}
   itemButtons:
   - {fileID: 2067619352}
   - {fileID: 645504173}
   - {fileID: 1434432620}
-  inventory:
-  - {fileID: 11400000, guid: af66586b32a97ea47a57e4b34cd73aa1, type: 2}
-  - {fileID: 11400000, guid: f108482dece589044b41c9ecbf91efa5, type: 2}
-  - {fileID: 11400000, guid: 6e964fc606044eb4da151afcc483277d, type: 2}
   gameOverPanel: {fileID: 393592656}
   gameOverCanvasGroup: {fileID: 393592659}
   gameOverButtons:
