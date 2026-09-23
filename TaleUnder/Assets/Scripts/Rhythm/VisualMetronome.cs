@@ -3,6 +3,7 @@ using PrimeTween;
 
 public class VisualMetronome : MonoBehaviour
 {
+    public Transform markerContainer;
     public RectTransform leftSpawn;
     public RectTransform rightSpawn;
     public RectTransform centerTarget;
@@ -32,17 +33,18 @@ public class VisualMetronome : MonoBehaviour
         
         float duration = RhythmManager.Instance.SecondsPerBeat * beatsToReachCenter;
         
-        SpawnAndTween(leftSpawn.anchoredPosition, duration);
-        SpawnAndTween(rightSpawn.anchoredPosition, duration);
+        SpawnAndTween(leftSpawn, duration);
+        SpawnAndTween(rightSpawn, duration);
     }
 
-    private void SpawnAndTween(Vector2 startPos, float duration)
+    private void SpawnAndTween(RectTransform spawnPoint, float duration)
     {
-        GameObject marker = Instantiate(markerPrefab, transform);
+        GameObject marker = Instantiate(markerPrefab, markerContainer);
         RectTransform rt = marker.GetComponent<RectTransform>();
-        rt.anchoredPosition = startPos;
+        
+        rt.position = spawnPoint.position;
 
-        Tween.UIAnchoredPosition(rt, centerTarget.anchoredPosition, duration, Ease.Linear)
+        Tween.Position(rt, centerTarget.position, duration, Ease.Linear, useUnscaledTime: true)
              .OnComplete(() => Destroy(marker));
     }
 }
