@@ -12,16 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a750c83d06ea3c14893720d499ddf985, type: 3}
   m_Name: PlayerProfile
   m_EditorClassIdentifier: Assembly-CSharp::PlayerProfileSO
-  currentLevel: 2
-  currentFans: 1
-  fansToNextLevel: 2
+  currentLevel: 1
+  currentFans: 0
+  levelProgression:
+  - {fileID: 11400000, guid: 568e001648d06ce43ba72374786a9fb4, type: 2}
+  - {fileID: 11400000, guid: 51edc8bf6c7dd7a48a04cc5b4b7369fa, type: 2}
   starBits: 20
   encoreStars: 1
-  maxHP: 30
-  currentHP: 32
-  maxPP: 15
-  currentPP: 15
-  baseAttack: 5
+  currentHP: 10
+  currentPP: 10
   currentEmotion: 0
   equippedMicrophone: {fileID: 11400000, guid: 5e0aa76cb702c844f8df8b0ba62f377f, type: 2}
   equippedOutfit: {fileID: 11400000, guid: 943a2f7214a44a345a0b66f5c3a4eb5b, type: 2}

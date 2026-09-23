@@ -68,7 +68,12 @@ public class CombatManager : MonoBehaviour
     public GameObject victoryPanel;
     public CanvasGroup victoryCanvasGroup;
     public Image[] victoryButtons = new Image[0];
-    public TMP_Text victoryLootText;
+    
+    public TMP_Text victoryFansText;
+    public TMP_Text victoryStarBitsText;
+    public TMP_Text victoryEncoreStarsText;
+    public TMP_Text victoryItemsText;
+    public TMP_Text fansToNextLevelText;
     public Slider victoryXPSlider;
 
     [Header("Combat Flow")]
@@ -136,6 +141,8 @@ public class CombatManager : MonoBehaviour
 
     public void Start()
     {
+        PrimeTweenConfig.warnEndValueEqualsCurrent = false;
+
         PlayerMovement.IsInCombat = true;
         AudioListener.volume = 1f;
         InitializeEncounter();
@@ -185,11 +192,11 @@ public class CombatManager : MonoBehaviour
         }
         if (playerPPSlider != null) 
         { 
-            playerPPSlider.maxValue = playerProfile.maxPP; 
+            playerPPSlider.maxValue = playerProfile.GetTotalMaxPP(); 
             Tween.UISliderValue(playerPPSlider, playerProfile.currentPP, 0.3f, Ease.OutBounce); 
         }
         if (playerHPText != null) playerHPText.text = $"{playerProfile.currentHP}/{playerProfile.GetTotalMaxHP()}";
-        if (playerPPText != null) playerPPText.text = $"{playerProfile.currentPP}/{playerProfile.maxPP}";
+        if (playerPPText != null) playerPPText.text = $"{playerProfile.currentPP}/{playerProfile.GetTotalMaxPP()}";
         if (playerEmotionText != null) playerEmotionText.text = playerProfile.currentEmotion.ToString().ToUpper();
     }
 
@@ -671,7 +678,7 @@ public class CombatManager : MonoBehaviour
         }
         else if (activeItemSO.effectType == CombatEffectType.HealPP)
         {
-            playerProfile.currentPP = Mathf.Clamp(playerProfile.currentPP + activeItemSO.effectValue, 0, playerProfile.maxPP);
+            playerProfile.currentPP = Mathf.Clamp(playerProfile.currentPP + activeItemSO.effectValue, 0, playerProfile.GetTotalMaxPP());
             if (activeItemSO.vfxPrefab != null && target != null) Instantiate(activeItemSO.vfxPrefab, target.position, Quaternion.identity);
             Tween.Delay(1f).OnComplete(StartDefensePhase);
         }
@@ -743,7 +750,7 @@ public class CombatManager : MonoBehaviour
         {
             GameObject spawnedMinigame = Instantiate(activeSkillSO.minigamePrefab);
             activeMinigameInstance = spawnedMinigame.GetComponent<ICombatMinigame>();
-            playerProfile.currentPP = Mathf.Clamp(playerProfile.currentPP - activeSkillSO.ppCost, 0, playerProfile.maxPP);
+            playerProfile.currentPP = Mathf.Clamp(playerProfile.currentPP - activeSkillSO.ppCost, 0, playerProfile.GetTotalMaxPP());
             UpdatePlayerStatsUI();
         }
         else 
@@ -850,7 +857,7 @@ public class CombatManager : MonoBehaviour
                 else if (activeSkillSO != null && activeSkillSO.effectType == CombatEffectType.HealPP)
                 {
                     int finalHeal = Mathf.RoundToInt(activeSkillSO.effectValue * damageMultiplier);
-                    playerProfile.currentPP = Mathf.Clamp(playerProfile.currentPP + finalHeal, 0, playerProfile.maxPP);
+                    playerProfile.currentPP = Mathf.Clamp(playerProfile.currentPP + finalHeal, 0, playerProfile.GetTotalMaxPP());
                 }
             }
         }
@@ -907,7 +914,7 @@ public class CombatManager : MonoBehaviour
 
         if (!tookDamageDuringRun && playerProfile != null)
         {
-            playerProfile.currentPP = Mathf.Clamp(playerProfile.currentPP + 5, 0, playerProfile.maxPP);
+            playerProfile.currentPP = Mathf.Clamp(playerProfile.currentPP + 5, 0, playerProfile.GetTotalMaxPP());
             UpdatePlayerStatsUI();
         }
 
@@ -987,20 +994,42 @@ public class CombatManager : MonoBehaviour
                 playerProfile.AddItem(item);
             }
 
-            if (victoryLootText != null)
+            if (victoryFansText != null) victoryFansText.text = $"+{accumulatedFans}";
+            if (victoryStarBitsText != null) victoryStarBitsText.text = $"+{accumulatedStarBits}";
+            if (victoryEncoreStarsText != null) victoryEncoreStarsText.text = $"+{accumulatedEncoreStars}";
+            
+            if (victoryItemsText != null)
             {
-                string lootText = $"FANS: +{accumulatedFans}\nSTARBITS: +{accumulatedStarBits}\nENCORE STARS: +{accumulatedEncoreStars}\n";
-                foreach (ItemSO item in accumulatedItems) lootText += $"+ {item.itemName}\n";
-                victoryLootText.text = lootText;
-            }
-
-            if (victoryXPSlider != null)
-            {
-                victoryXPSlider.maxValue = playerProfile.fansToNextLevel;
-                victoryXPSlider.value = playerProfile.currentFans;
+                string itemsString = "";
+                foreach (ItemSO item in accumulatedItems)
+                {
+                    itemsString += $"+ {item.itemName}\n";
+                }
+                victoryItemsText.text = itemsString;
             }
 
             playerProfile.AddFans(accumulatedFans);
+
+            int fansForNextLevel = playerProfile.GetFansRequiredForNextLevel();
+
+            if (victoryXPSlider != null)
+            {
+                victoryXPSlider.maxValue = fansForNextLevel > 0 ? fansForNextLevel : 1;
+                victoryXPSlider.value = playerProfile.currentFans;
+            }
+
+            if (fansToNextLevelText != null)
+            {
+                if (fansForNextLevel > 0)
+                {
+                    int missing = fansForNextLevel - playerProfile.currentFans;
+                    fansToNextLevelText.text = $"{missing} FANS DO NEXT LEVEL";
+                }
+                else
+                {
+                    fansToNextLevelText.text = "MAX LEVEL";
+                }
+            }
         }
         
         Tween.Custom(1f, 0f, 2f, onValueChange: v => AudioListener.volume = v);
